@@ -1,4 +1,4 @@
-﻿import { TrendingUp, TrendingDown, LucideIcon } from 'lucide-react';
+import { TrendingUp, TrendingDown, LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface KpiCardProps {

@@ -1,4 +1,4 @@
-﻿import { useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import api from '@/lib/api';
 import { sourceLabel } from '@/lib/utils';
