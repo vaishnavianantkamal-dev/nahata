@@ -5,7 +5,7 @@ import { getLlmProvider } from '../../integrations/llm';
 import { AppError } from '../../middleware/error';
 import { emitToLead, emitToAll } from '../../lib/socket';
 import { logger } from '../../lib/logger';
-import { INDIAN_PHONE_REGEX } from '@nahata/shared';
+import { INDIAN_PHONE_REGEX } from '../../lib/helpers';
 
 export async function clickToCall(leadId: string, userId: string) {
   const lead = await db.lead.findUnique({ where: { id: leadId } });

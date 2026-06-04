@@ -4,7 +4,7 @@ import * as svc from './calls.service';
 import { db } from '../../lib/db';
 import { emitToLead } from '../../lib/socket';
 import { logger } from '../../lib/logger';
-import { normalizeIndianPhone } from '@nahata/shared';
+import { normalizeIndianPhone } from '../../lib/helpers';
 import { fireLeadCreatedAutomation } from '../whatsapp/whatsapp.service';
 import { createLead } from '../leads/leads.service';
 

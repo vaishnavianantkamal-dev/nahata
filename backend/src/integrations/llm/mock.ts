@@ -1,4 +1,4 @@
-import { CallIntelligence, ScoreBand } from '@nahata/shared';
+import { CallIntelligence, ScoreBand } from '../../lib/helpers';
 import { LlmProvider } from './interface';
 import { logger } from '../../lib/logger';
 

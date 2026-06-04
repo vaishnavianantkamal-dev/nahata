@@ -1,4 +1,4 @@
-import { CallIntelligence } from '@nahata/shared';
+import { CallIntelligence } from '../../lib/helpers';
 
 export interface LlmProvider {
   summariseAndScore(input: {

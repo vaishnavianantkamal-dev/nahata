@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { db } from '../../lib/db';
 import { AppError } from '../../middleware/error';
-import { normalizeIndianPhone } from '@nahata/shared';
+import { normalizeIndianPhone } from '../../lib/helpers';
 import { emitToAll, emitToLead } from '../../lib/socket';
 
 const LEAD_SELECT = {

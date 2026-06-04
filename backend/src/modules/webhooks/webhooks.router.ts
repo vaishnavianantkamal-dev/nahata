@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { createLead, checkDuplicate } from '../leads/leads.service';
 import { fireLeadCreatedAutomation } from '../whatsapp/whatsapp.service';
-import { normalizeIndianPhone } from '@nahata/shared';
+import { normalizeIndianPhone } from '../../lib/helpers';
 import { logger } from '../../lib/logger';
 import { db } from '../../lib/db';
 
