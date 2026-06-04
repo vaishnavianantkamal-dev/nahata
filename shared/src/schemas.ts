@@ -1,4 +1,4 @@
-import { z } from 'zod';
+﻿import { z } from 'zod';
 import { Role, LeadSource, EventType, LeadStatus, ScoreBand, MessageChannel } from './enums';
 
 export const phoneSchema = z.string().regex(/^\+91[6-9]\d{9}$/, 'Must be a valid Indian mobile number (+91XXXXXXXXXX)');

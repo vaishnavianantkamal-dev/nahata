@@ -1,4 +1,4 @@
-import {
+﻿import {
   Role, LeadSource, ScoreBand, LeadStatus, EventType,
   MessageDirection, MessageChannel, MessageStatus,
   CallDirection, CallStatus, AutomationTrigger, ActivityType,

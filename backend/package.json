@@ -1,5 +1,5 @@
-{
-  "name": "@nahata/api",
+﻿{
+  "name": "@nahata/backend",
   "version": "1.0.0",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
@@ -60,3 +60,4 @@
     "typescript": "^5.4.5"
   }
 }
+

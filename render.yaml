@@ -1,11 +1,11 @@
-services:
-  # ── API (Node.js + Express) ──────────────────────────────────────────────
+﻿services:
+  # â”€â”€ API (Node.js + Express) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   - type: web
     name: nahata-crm-api
     runtime: node
     region: singapore          # closest to India
     plan: free
-    rootDir: apps/api
+    rootDir: backend
     buildCommand: pnpm install && npx prisma generate && npx prisma migrate deploy && pnpm build
     startCommand: node dist/index.js
     healthCheckPath: /healthz
@@ -23,7 +23,7 @@ services:
           name: nahata-crm-db
           property: connectionString
       - key: REDIS_URL
-        value: ""               # Optional — leave blank to skip Redis on free tier
+        value: ""               # Optional â€” leave blank to skip Redis on free tier
       - key: JWT_ACCESS_SECRET
         generateValue: true
       - key: JWT_REFRESH_SECRET
@@ -55,10 +55,11 @@ services:
       # ANTHROPIC_API_KEY, DEEPGRAM_API_KEY
       # EXOTEL_SID, EXOTEL_API_KEY, EXOTEL_API_TOKEN
 
-  # ── PostgreSQL Database ──────────────────────────────────────────────────
+  # â”€â”€ PostgreSQL Database â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 databases:
   - name: nahata-crm-db
     plan: free
     region: singapore
     databaseName: nahata
     user: nahata_user
+

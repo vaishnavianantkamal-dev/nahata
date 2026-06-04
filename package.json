@@ -1,15 +1,15 @@
-{
+﻿{
   "name": "nahata-crm",
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "pnpm --parallel --filter=api --filter=web dev",
-    "dev:api": "pnpm --filter=api dev",
-    "dev:web": "pnpm --filter=web dev",
-    "build": "pnpm --filter=shared build && pnpm --filter=api build && pnpm --filter=web build",
-    "db:migrate": "pnpm --filter=api db:migrate",
-    "db:seed": "pnpm --filter=api db:seed",
-    "db:studio": "pnpm --filter=api db:studio",
+    "dev": "pnpm --parallel --filter=backend --filter=frontend dev",
+    "dev:api": "pnpm --filter=backend dev",
+    "dev:web": "pnpm --filter=frontend dev",
+    "build": "pnpm --filter=shared build && pnpm --filter=backend build && pnpm --filter=frontend build",
+    "db:migrate": "pnpm --filter=backend db:migrate",
+    "db:seed": "pnpm --filter=backend db:seed",
+    "db:studio": "pnpm --filter=backend db:studio",
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck"
   },
@@ -17,3 +17,4 @@
     "typescript": "^5.4.5"
   }
 }
+

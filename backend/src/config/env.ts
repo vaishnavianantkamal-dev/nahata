@@ -1,7 +1,7 @@
-import * as dotenv from 'dotenv';
+﻿import * as dotenv from 'dotenv';
 import * as path from 'path';
 
-dotenv.config({ path: path.resolve(__dirname, '../../../../.env') });
+dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
 export const env = {
   NODE_ENV: process.env.NODE_ENV || 'development',
@@ -52,3 +52,4 @@ export const env = {
   SCORE_HOT_THRESHOLD: parseInt(process.env.SCORE_HOT_THRESHOLD || '80', 10),
   SCORE_WARM_THRESHOLD: parseInt(process.env.SCORE_WARM_THRESHOLD || '50', 10),
 };
+

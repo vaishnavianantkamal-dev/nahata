@@ -1,5 +1,5 @@
-{
-  "name": "@nahata/web",
+﻿{
+  "name": "@nahata/frontend",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
@@ -59,3 +59,4 @@
     "vite": "^5.3.5"
   }
 }
+
