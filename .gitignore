@@ -1,0 +1,19 @@
+node_modules
+dist
+.env
+# Windows startup scripts (contain local DB credentials)
+start-api.bat
+start-all.bat
+start-web.bat
+.env.local
+*.local
+.DS_Store
+*.log
+coverage
+.nyc_output
+uploads/
+recordings/
+exports/
+*.pdf
+apps/api/prisma/migrations/dev.db
+apps/web/dist/

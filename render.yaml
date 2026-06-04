@@ -1,0 +1,64 @@
+services:
+  # ── API (Node.js + Express) ──────────────────────────────────────────────
+  - type: web
+    name: nahata-crm-api
+    runtime: node
+    region: singapore          # closest to India
+    plan: free
+    rootDir: apps/api
+    buildCommand: pnpm install && npx prisma generate && npx prisma migrate deploy && pnpm build
+    startCommand: node dist/index.js
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: API_PORT
+        value: 10000            # Render uses PORT env by default; we also support API_PORT
+      - key: PORT
+        value: 10000
+      - key: TZ
+        value: Asia/Kolkata
+      - key: DATABASE_URL
+        fromDatabase:
+          name: nahata-crm-db
+          property: connectionString
+      - key: REDIS_URL
+        value: ""               # Optional — leave blank to skip Redis on free tier
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: ACCESS_TOKEN_TTL
+        value: 15m
+      - key: REFRESH_TOKEN_TTL
+        value: 7d
+      - key: SEED_OWNER_EMAIL
+        value: owner@nahatalawns.com
+      - key: SEED_OWNER_PASSWORD
+        sync: false             # Set manually in Render dashboard (sensitive)
+      - key: APP_BASE_URL
+        sync: false             # Set to your Vercel frontend URL e.g. https://nahata.vercel.app
+      - key: WHATSAPP_PROVIDER
+        value: mock             # Change to "meta" when WhatsApp API is ready
+      - key: TELEPHONY_PROVIDER
+        value: mock
+      - key: STT_PROVIDER
+        value: mock
+      - key: LLM_PROVIDER
+        value: mock
+      - key: SCORE_HOT_THRESHOLD
+        value: "80"
+      - key: SCORE_WARM_THRESHOLD
+        value: "50"
+      # Add these when going live:
+      # META_WABA_PHONE_NUMBER_ID, META_WABA_TOKEN, META_WEBHOOK_VERIFY_TOKEN
+      # ANTHROPIC_API_KEY, DEEPGRAM_API_KEY
+      # EXOTEL_SID, EXOTEL_API_KEY, EXOTEL_API_TOKEN
+
+  # ── PostgreSQL Database ──────────────────────────────────────────────────
+databases:
+  - name: nahata-crm-db
+    plan: free
+    region: singapore
+    databaseName: nahata
+    user: nahata_user
