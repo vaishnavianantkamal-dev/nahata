@@ -1,0 +1,568 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  OWNER
+  MANAGER
+  AGENT
+}
+
+enum LeadSource {
+  WEDMEGOOD
+  JUSTDIAL
+  GOOGLE_MAPS
+  WEBSITE
+  MANUAL
+  WHATSAPP_INBOUND
+  IVR_INBOUND
+  REFERRAL
+  OTHER
+}
+
+enum ScoreBand {
+  HOT
+  WARM
+  COLD
+  UNSCORED
+}
+
+enum LeadStatus {
+  OPEN
+  WON
+  LOST
+}
+
+enum EventType {
+  WEDDING
+  RECEPTION
+  ENGAGEMENT
+  SANGEET
+  BIRTHDAY
+  CORPORATE
+  OTHER
+}
+
+enum MessageDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum MessageChannel {
+  WHATSAPP
+  SMS
+}
+
+enum MessageStatus {
+  QUEUED
+  SENT
+  DELIVERED
+  READ
+  FAILED
+  RECEIVED
+}
+
+enum CallDirection {
+  OUTBOUND
+  INBOUND
+}
+
+enum CallStatus {
+  INITIATED
+  RINGING
+  IN_PROGRESS
+  COMPLETED
+  MISSED
+  FAILED
+  NO_ANSWER
+  BUSY
+}
+
+enum AutomationTrigger {
+  LEAD_CREATED
+  STAGE_CHANGED
+  NO_REPLY
+  MANUAL
+}
+
+enum SequenceStepStatus {
+  PENDING
+  SENT
+  SKIPPED
+  CANCELLED
+}
+
+enum ActivityType {
+  NOTE
+  STAGE_CHANGE
+  SOURCE_CHANGE
+  ASSIGNMENT
+  CALL_LOGGED
+  WHATSAPP_SENT
+  WHATSAPP_RECEIVED
+  SCORE_UPDATED
+  FOLLOWUP_SCHEDULED
+  FOLLOWUP_SENT
+  LEAD_CREATED
+  FIELD_UPDATED
+}
+
+model User {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  phone        String?
+  passwordHash String
+  role         Role      @default(AGENT)
+  avatarUrl    String?
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  ownedLeads     Lead[]          @relation("LeadOwner")
+  activities     Activity[]
+  calls          Call[]
+  refreshTokens  RefreshToken[]
+  auditLogs      AuditLog[]
+  quotations     Quotation[]
+
+  @@index([email])
+  @@index([role])
+}
+
+model Stage {
+  id        String    @id @default(cuid())
+  name      String
+  key       String    @unique
+  order     Int
+  color     String    @default("#64748b")
+  isWon     Boolean   @default(false)
+  isLost    Boolean   @default(false)
+  isDefault Boolean   @default(false)
+  wipLimit  Int?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  leads          Lead[]
+  messageBinding StageMessageBinding?
+
+  @@index([order])
+}
+
+model StageMessageBinding {
+  id         String         @id @default(cuid())
+  stageId    String         @unique
+  templateId String
+  channel    MessageChannel @default(WHATSAPP)
+  enabled    Boolean        @default(true)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  stage    Stage    @relation(fields: [stageId], references: [id])
+  template Template @relation(fields: [templateId], references: [id])
+}
+
+model Lead {
+  id            String      @id @default(cuid())
+  name          String
+  primaryPhone  String
+  altPhone      String?
+  email         String?
+  source        LeadSource
+  sourceDetail  String?
+  eventType     EventType
+  guestCount    Int?
+  eventDate     DateTime?
+  budgetMin     Int?
+  budgetMax     Int?
+  stageId       String
+  status        LeadStatus  @default(OPEN)
+  ownerId       String?
+  score         Int?
+  scoreBand     ScoreBand   @default(UNSCORED)
+  lastContactAt DateTime?
+  firstResponseAt DateTime?
+  nextFollowUpAt  DateTime?
+  notes         String?
+  lostReason    String?
+  externalRef   String?
+  isArchived    Boolean     @default(false)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  deletedAt     DateTime?
+
+  stage       Stage              @relation(fields: [stageId], references: [id])
+  owner       User?              @relation("LeadOwner", fields: [ownerId], references: [id])
+  messages    Message[]
+  calls       Call[]
+  activities  Activity[]
+  scoreEvents LeadScoreEvent[]
+  enrollments SequenceEnrollment[]
+  scheduled   ScheduledMessage[]
+  quotations  Quotation[]
+
+  @@index([stageId])
+  @@index([ownerId])
+  @@index([source])
+  @@index([status])
+  @@index([scoreBand])
+  @@index([eventDate])
+  @@index([createdAt])
+  @@index([primaryPhone])
+}
+
+model TemplateGroup {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  icon        String?
+  color       String?
+  order       Int       @default(0)
+  isSystem    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  templates Template[]
+}
+
+model Template {
+  id                     String         @id @default(cuid())
+  groupId                String
+  name                   String
+  channel                MessageChannel @default(WHATSAPP)
+  body                   String
+  language               String         @default("en")
+  providerTemplateName   String?
+  providerTemplateStatus String?
+  variables              Json?
+  order                  Int            @default(0)
+  isActive               Boolean        @default(true)
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
+  deletedAt              DateTime?
+
+  group          TemplateGroup        @relation(fields: [groupId], references: [id])
+  sequenceSteps  SequenceStep[]
+  stageBindings  StageMessageBinding[]
+  messages       Message[]
+  scheduledMsgs  ScheduledMessage[]
+
+  @@index([groupId, order])
+}
+
+model Sequence {
+  id               String            @id @default(cuid())
+  name             String
+  description      String?
+  isActive         Boolean           @default(true)
+  trigger          AutomationTrigger @default(LEAD_CREATED)
+  stopOnReply      Boolean           @default(true)
+  stopOnStageChange Boolean          @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  steps       SequenceStep[]
+  enrollments SequenceEnrollment[]
+}
+
+model SequenceStep {
+  id            String   @id @default(cuid())
+  sequenceId    String
+  order         Int
+  delayMinutes  Int      @default(0)
+  templateId    String
+  condition     Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  sequence  Sequence @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
+  template  Template @relation(fields: [templateId], references: [id])
+}
+
+model SequenceEnrollment {
+  id               String   @id @default(cuid())
+  leadId           String
+  sequenceId       String
+  status           String   @default("active")
+  currentStepOrder Int      @default(0)
+  enrolledAt       DateTime @default(now())
+  stoppedAt        DateTime?
+  stopReason       String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  lead      Lead     @relation(fields: [leadId], references: [id])
+  sequence  Sequence @relation(fields: [sequenceId], references: [id])
+  scheduled ScheduledMessage[]
+
+  @@unique([leadId, sequenceId, status])
+}
+
+model ScheduledMessage {
+  id            String             @id @default(cuid())
+  leadId        String
+  enrollmentId  String?
+  templateId    String?
+  channel       MessageChannel     @default(WHATSAPP)
+  scheduledFor  DateTime
+  status        SequenceStepStatus @default(PENDING)
+  renderedBody  String?
+  sentMessageId String?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  lead       Lead               @relation(fields: [leadId], references: [id])
+  enrollment SequenceEnrollment? @relation(fields: [enrollmentId], references: [id])
+  template   Template?          @relation(fields: [templateId], references: [id])
+
+  @@index([scheduledFor, status])
+}
+
+model Message {
+  id                String           @id @default(cuid())
+  leadId            String
+  userId            String?
+  direction         MessageDirection
+  channel           MessageChannel
+  status            MessageStatus    @default(QUEUED)
+  body              String
+  templateId        String?
+  trigger           AutomationTrigger?
+  providerMessageId String?
+  providerStatusRaw Json?
+  errorMessage      String?
+  sentAt            DateTime?
+  deliveredAt       DateTime?
+  readAt            DateTime?
+  receivedAt        DateTime?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  lead     Lead      @relation(fields: [leadId], references: [id])
+  template Template? @relation(fields: [templateId], references: [id])
+
+  @@index([leadId, createdAt])
+  @@index([status])
+  @@index([direction])
+}
+
+model Call {
+  id                   String        @id @default(cuid())
+  leadId               String?
+  userId               String?
+  direction            CallDirection
+  status               CallStatus    @default(INITIATED)
+  fromNumber           String
+  toNumber             String
+  providerCallId       String?
+  ivrFlow              Json?
+  startedAt            DateTime?
+  answeredAt           DateTime?
+  endedAt              DateTime?
+  durationSec          Int?
+  recordingUrl         String?
+  recordingStorageKey  String?
+  consentPlayed        Boolean       @default(true)
+  transcript           String?
+  transcriptLang       String?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  lead        Lead?        @relation(fields: [leadId], references: [id])
+  agent       User?        @relation(fields: [userId], references: [id])
+  summary     CallSummary?
+  scoreEvents LeadScoreEvent[]
+
+  @@index([leadId, createdAt])
+  @@index([direction])
+  @@index([status])
+}
+
+model CallSummary {
+  id             String   @id @default(cuid())
+  callId         String   @unique
+  leadId         String
+  summary        String
+  event          String?
+  guests         Int?
+  eventDate      String?
+  sentiment      String?
+  objections     String?
+  nextAction     String
+  rawModelOutput Json?
+  model          String
+  promptVersion  String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  call Call @relation(fields: [callId], references: [id])
+}
+
+model LeadScoreEvent {
+  id              String    @id @default(cuid())
+  leadId          String
+  callId          String?
+  score           Int
+  band            ScoreBand
+  factors         Json?
+  rationale       String
+  suggestedAction String
+  source          String    @default("CALL")
+  model           String?
+  createdAt       DateTime  @default(now())
+
+  lead Lead  @relation(fields: [leadId], references: [id])
+  call Call? @relation(fields: [callId], references: [id])
+
+  @@index([leadId, createdAt])
+}
+
+model Activity {
+  id          String       @id @default(cuid())
+  leadId      String
+  userId      String?
+  type        ActivityType
+  title       String
+  description String?
+  meta        Json?
+  createdAt   DateTime     @default(now())
+
+  lead Lead  @relation(fields: [leadId], references: [id])
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([leadId, createdAt])
+}
+
+model SourceIntegration {
+  id           String     @id @default(cuid())
+  source       LeadSource @unique
+  displayName  String
+  isEnabled    Boolean    @default(true)
+  webhookSecret String?
+  fieldMapping Json       @default("{}")
+  notes        String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Setting {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       Json
+  updatedById String?
+  updatedAt   DateTime @updatedAt
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  isRevoked Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  entity    String?
+  entityId  String?
+  meta      Json?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
+
+// ── Quotations & Invoices ─────────────────────────────────────────────────────
+
+enum QuotationStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  INVOICED
+}
+
+model Quotation {
+  id             String           @id @default(cuid())
+  quoteNumber    String           @unique
+  leadId         String?
+  clientName     String
+  clientPhone    String?
+  projectDetails String?
+  quoteDate      DateTime         @default(now())
+  validityDays   Int              @default(15)
+  advancePct     Int              @default(50)
+  subtotal       Float            @default(0)
+  discountPct    Float            @default(0)
+  discountAmt    Float            @default(0)
+  gstPct         Float            @default(0)
+  grandTotal     Float            @default(0)
+  estCost        Float            @default(0)
+  notes          String?
+  termsText      String?
+  status         QuotationStatus  @default(DRAFT)
+  pdfPath        String?
+  createdById    String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  lead       Lead?              @relation(fields: [leadId], references: [id])
+  createdBy  User?              @relation(fields: [createdById], references: [id])
+  items      QuotationItem[]
+  addlWork   QuotationAddlWork[]
+
+  @@index([leadId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model QuotationItem {
+  id          String    @id @default(cuid())
+  quotationId String
+  order       Int
+  description String
+  notes       String?
+  length      Float     @default(0)
+  width       Float     @default(0)
+  areaQty     Float     @default(1)
+  unit        String    @default("Sq.ft")
+  rate        Float     @default(0)
+  amount      Float     @default(0)
+  createdAt   DateTime  @default(now())
+
+  quotation Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+}
+
+model QuotationAddlWork {
+  id          String    @id @default(cuid())
+  quotationId String
+  order       Int
+  item        String
+  qty         Float     @default(1)
+  unit        String    @default("Nos")
+  rate        Float     @default(0)
+  amount      Float     @default(0)
+  createdAt   DateTime  @default(now())
+
+  quotation Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+}

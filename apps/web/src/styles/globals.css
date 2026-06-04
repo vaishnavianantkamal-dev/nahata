@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* ── Root: 17px base so everything scales up ── */
+  html {
+    font-size: 17px;
+  }
+
+  body {
+    background-color: #f5f6fa;
+    color: #0f172a;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 500;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', system-ui, sans-serif;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.25;
+  }
+
+  p, span, div, li, td, th, label, button, input, textarea, select, a {
+    font-size: inherit;
+    font-weight: inherit;
+  }
+
+  input, button, textarea, select {
+    font-family: inherit;
+    font-weight: 500;
+    color: #0f172a;
+  }
+
+  ::placeholder {
+    color: #64748b;
+    font-weight: 400;
+  }
+}
+
+@layer utilities {
+  .font-display { font-family: 'Poppins', system-ui, sans-serif; }
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar        { width: 5px; height: 5px; }
+  .scrollbar-thin::-webkit-scrollbar-track  { background: transparent; }
+  .scrollbar-thin::-webkit-scrollbar-thumb  { background-color: #cbd5e1; border-radius: 4px; }
+}
+
+/* ── Kanban ── */
+.kanban-col {
+  min-height: 120px;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+}
+
+/* ── Table ── */
+table { width: 100%; border-collapse: collapse; color: #0f172a; }
+
+table thead tr  { background-color: #f1f5f9; }
+
+table thead th {
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #334155;
+  padding: 14px 18px;
+  white-space: nowrap;
+}
+
+table tbody tr  { border-top: 1px solid #e2e8f0; }
+table tbody tr:hover { background-color: #f8fafc; }
+
+table tbody td {
+  padding: 16px 18px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #0f172a;
+  vertical-align: middle;
+}
+
+table tbody td .cell-sub {
+  font-size: 14px;
+  font-weight: 500;
+  color: #475569;
+  margin-top: 3px;
+}

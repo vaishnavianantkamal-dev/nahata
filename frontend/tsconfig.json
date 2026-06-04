@@ -1,4 +1,4 @@
-﻿{
+{
   "compilerOptions": {
     "target": "ES2020",
     "useDefineForClassFields": true,
@@ -18,7 +18,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@nahata/shared": ["../../shared/src/index.ts"]
+      "@nahata/shared": ["../shared/src/index.ts"]
     }
   },
   "include": ["src"],

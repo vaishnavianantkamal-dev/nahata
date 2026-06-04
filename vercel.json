@@ -1,8 +1,7 @@
 {
-  "buildCommand": "cd frontend && npm install -g pnpm && pnpm install && pnpm build",
+  "buildCommand": "pnpm --filter=frontend build",
   "outputDirectory": "frontend/dist",
-  "installCommand": "npm install -g pnpm && pnpm install --filter=frontend",
-  "framework": "vite",
+  "installCommand": "pnpm install",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]

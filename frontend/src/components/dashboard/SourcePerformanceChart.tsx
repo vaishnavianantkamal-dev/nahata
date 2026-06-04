@@ -1,4 +1,4 @@
-﻿import { useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 
 const COLORS = ['#1F5C45', '#C9A24B', '#0ea5e9', '#8b5cf6', '#ec4899'];
