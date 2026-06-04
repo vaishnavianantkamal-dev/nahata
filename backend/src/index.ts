@@ -5,12 +5,81 @@ import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
-import { connectDB } from './lib/db';
+import * as bcrypt from 'bcryptjs';
+import { connectDB, db } from './lib/db';
 import { getRedis } from './lib/redis';
 import { initSocket } from './lib/socket';
 import { logger } from './lib/logger';
 import { errorHandler } from './middleware/error';
 import { env } from './config/env';
+
+// ── Auto-seed: runs on every startup, safe to run multiple times ─────────────
+async function autoSeed() {
+  try {
+    // 1. Create owner user if not exists
+    const ownerEmail = process.env.SEED_OWNER_EMAIL || 'owner@nahatalawns.com';
+    const ownerPass  = (process.env.SEED_OWNER_PASSWORD) || 'NahataOwner2024!';
+    const existing   = await db.user.findUnique({ where: { email: ownerEmail } });
+    if (!existing) {
+      const hash = await bcrypt.hash(ownerPass, 12);
+      await db.user.create({
+        data: { name: 'Nahata Lawns Owner', email: ownerEmail, phone: '+919876543210', passwordHash: hash, role: 'OWNER', isActive: true },
+      });
+      logger.info(`✅ Owner user created: ${ownerEmail}`);
+    }
+
+    // 2. Seed default stages if none exist
+    const stageCount = await db.stage.count();
+    if (stageCount === 0) {
+      const stages = [
+        { name: 'New Lead',              key: 'new',         order: 1, color: '#64748b', isDefault: true },
+        { name: 'Contacted',             key: 'contacted',   order: 2, color: '#0ea5e9' },
+        { name: 'Site Visit',            key: 'site_visit',  order: 3, color: '#8b5cf6' },
+        { name: 'Quotation',             key: 'quotation',   order: 4, color: '#f59e0b' },
+        { name: 'Negotiation',           key: 'negotiation', order: 5, color: '#ec4899' },
+        { name: 'Confirmed',             key: 'confirmed',   order: 6, color: '#16a34a', isWon: true },
+        { name: 'Lost / Not Interested', key: 'lost',        order: 7, color: '#94a3b8', isLost: true },
+      ];
+      for (const s of stages) {
+        await db.stage.upsert({ where: { key: s.key }, update: {}, create: { ...s, isWon: (s as any).isWon || false, isLost: (s as any).isLost || false, isDefault: (s as any).isDefault || false } });
+      }
+      logger.info('✅ Default stages created');
+    }
+
+    // 3. Seed default settings if not present
+    const settingsData = [
+      { key: 'venueName',       value: 'Nahata Lawns' },
+      { key: 'timezone',        value: 'Asia/Kolkata' },
+      { key: 'currency',        value: 'INR' },
+      { key: 'defaultCountryCode', value: '+91' },
+      { key: 'scoreThresholds', value: { hot: 80, warm: 50 } },
+      { key: 'customEventTypes', value: [] },
+      { key: 'customSources',    value: [] },
+    ];
+    for (const s of settingsData) {
+      await db.setting.upsert({ where: { key: s.key }, update: {}, create: s });
+    }
+
+    // 4. Seed template groups if none exist
+    const tgCount = await db.templateGroup.count();
+    if (tgCount === 0) {
+      const tg = await db.templateGroup.create({ data: { name: 'Welcome & Enquiry', icon: '👋', color: '#0ea5e9', order: 1, isSystem: true } });
+      const template = await db.template.create({
+        data: { groupId: tg.id, name: 'Instant Welcome', body: 'Namaste {Name} 🙏 Thank you for your interest in Nahata Lawns! We\'d love to host your special day. May we know your event date & guest count?', order: 1 },
+      });
+      // Bind welcome template to New Lead stage
+      const newStage = await db.stage.findFirst({ where: { key: 'new' } });
+      if (newStage) {
+        await db.stageMessageBinding.upsert({ where: { stageId: newStage.id }, update: {}, create: { stageId: newStage.id, templateId: template.id, enabled: true } });
+      }
+      logger.info('✅ Default templates created');
+    }
+
+    logger.info('🌿 Auto-seed complete');
+  } catch (err) {
+    logger.error({ err }, 'Auto-seed failed (non-fatal)');
+  }
+}
 
 // Routers
 import authRouter       from './modules/auth/auth.router';
@@ -101,6 +170,9 @@ async function bootstrap() {
   // Connect DB then start
   await connectDB();
   try { getRedis(); } catch { logger.warn('Redis unavailable — queued jobs will be skipped'); }
+
+  // Auto-seed on first run (production: no shell access on free tier)
+  await autoSeed();
 
   server.listen(env.API_PORT, () => {
     logger.info(`🌿 Nahata CRM API running on http://localhost:${env.API_PORT}`);
