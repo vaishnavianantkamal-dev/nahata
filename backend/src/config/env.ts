@@ -19,7 +19,7 @@ export const env = {
 
   JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET || 'dev_access_secret_change_in_prod',
   JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || 'dev_refresh_secret_change_in_prod',
-  ACCESS_TOKEN_TTL: process.env.ACCESS_TOKEN_TTL || '15m',
+  ACCESS_TOKEN_TTL: process.env.ACCESS_TOKEN_TTL || '2h',
   REFRESH_TOKEN_TTL: process.env.REFRESH_TOKEN_TTL || '7d',
 
   WHATSAPP_PROVIDER: process.env.WHATSAPP_PROVIDER || 'mock',
