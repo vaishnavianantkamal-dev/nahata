@@ -1,44 +1,37 @@
-import { Router, Request, Response, NextFunction } from 'express';
-import { db } from '../../lib/db';
-import { requireAuth, requireRole } from '../../middleware/auth';
+import express from 'express';
+import { requireAuth } from "../../middleware/auth";
+import { query, queryMany, queryOne } from '../../lib/db';
+import { v4 as uuidv4 } from 'uuid';
 
-const router = Router();
+const router = express.Router();
+router.use(requireAuth);
 
-router.get('/settings', requireAuth, async (_req, res, next) => {
+router.get('/settings', async (req, res, next) => {
   try {
-    const settings = await db.setting.findMany({ orderBy: { key: 'asc' } });
-    const obj: Record<string, any> = {};
-    for (const s of settings) obj[s.key] = s.value;
-    res.json(obj);
-  } catch (e) { next(e); }
-});
-
-router.put('/settings/:key', requireAuth, requireRole('OWNER'), async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const setting = await db.setting.upsert({
-      where: { key: req.params.key },
-      update: { value: req.body.value, updatedById: req.user!.userId },
-      create: { key: req.params.key, value: req.body.value, updatedById: req.user!.userId },
+    const settings = await queryMany('SELECT key, value FROM "Setting" ORDER BY key ASC');
+    const result: Record<string, any> = {};
+    settings.forEach(s => {
+      result[s.key] = typeof s.value === 'string' ? JSON.parse(s.value) : s.value;
     });
-    res.json(setting);
-  } catch (e) { next(e); }
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
 });
 
-router.get('/source-integrations', requireAuth, requireRole('OWNER', 'MANAGER'), async (_req, res, next) => {
+router.patch('/settings', async (req, res, next) => {
   try {
-    res.json(await db.sourceIntegration.findMany({ orderBy: { source: 'asc' } }));
-  } catch (e) { next(e); }
-});
-
-router.put('/source-integrations/:source', requireAuth, requireRole('OWNER', 'MANAGER'), async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const si = await db.sourceIntegration.upsert({
-      where: { source: req.params.source as any },
-      update: req.body,
-      create: { source: req.params.source as any, displayName: req.params.source, ...req.body },
-    });
-    res.json(si);
-  } catch (e) { next(e); }
+    const now = new Date();
+    for (const [key, value] of Object.entries(req.body)) {
+      await query(
+        'INSERT INTO "Setting" (id, key, value, "updatedAt") VALUES ($1, $2, $3, $4) ON CONFLICT (key) DO UPDATE SET value = $3, "updatedAt" = $4',
+        [uuidv4(), key, JSON.stringify(value), now]
+      );
+    }
+    res.json({ success: true });
+  } catch (err) {
+    next(err);
+  }
 });
 
 export default router;

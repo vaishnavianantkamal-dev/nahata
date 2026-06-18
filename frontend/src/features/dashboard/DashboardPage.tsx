@@ -109,10 +109,10 @@ export function DashboardPage() {
       </div>
 
       {/* ── Content below hero ───────────────────────────────────────────────── */}
-      <div className="flex-1 px-6 lg:px-8 py-6 space-y-6">
+      <div className="flex-1 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6">
 
         {/* KPI Row A — with deltas */}
-        <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
           <KpiCard
             title="New Leads"
             value={kpis?.newLeads ?? 0}
@@ -152,7 +152,7 @@ export function DashboardPage() {
         </div>
 
         {/* KPI Row B */}
-        <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
           <KpiCard
             title="Total Enquiries"
             value={kpis?.totalEnquiries ?? 0}
@@ -190,12 +190,12 @@ export function DashboardPage() {
         {activeTab === 'Overview' && (
           <>
             {/* Charts row 1 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
               <EnquiriesByWeekChart />
               <LeadsBySourceChart />
             </div>
             {/* Charts row 2 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
               <ConversionFunnelChart />
               <SourcePerformanceChart />
             </div>
@@ -217,7 +217,7 @@ export function DashboardPage() {
         )}
 
         {activeTab === 'Analytics' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
             <EnquiriesByWeekChart />
             <LeadsBySourceChart />
             <ConversionFunnelChart />

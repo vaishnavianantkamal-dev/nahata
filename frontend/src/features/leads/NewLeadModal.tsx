@@ -92,27 +92,27 @@ export function NewLeadModal({ open, onClose }: Props) {
 
       {/* Drawer — slides in from right */}
       <div className={`
-        fixed top-0 right-0 bottom-0 z-50 w-full max-w-[640px]
+        fixed top-0 right-0 bottom-0 z-50 w-full sm:max-w-[640px] md:max-w-[700px]
         bg-white shadow-2xl flex flex-col
         transition-transform duration-300 ease-out
         ${open ? 'translate-x-0' : 'translate-x-full'}
       `}>
 
         {/* ── Header ── */}
-        <div className="flex items-start justify-between px-7 pt-7 pb-5 border-b border-slate-100 flex-shrink-0">
-          <div>
-            <h2 className="text-[24px] font-display font-bold text-slate-900 leading-tight">
+        <div className="flex items-start justify-between px-5 sm:px-7 pt-5 sm:pt-7 pb-4 sm:pb-5 border-b border-slate-100 flex-shrink-0 gap-3">
+          <div className="min-w-0">
+            <h2 className="text-[22px] sm:text-[24px] font-display font-bold text-slate-900 leading-tight">
               Nurture New Lead
             </h2>
-            <p className="text-[15px] text-slate-500 font-medium mt-1">
+            <p className="text-[13px] sm:text-[15px] text-slate-500 font-medium mt-1">
               Capture every detail to ensure better conversion
             </p>
           </div>
           <button
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-800 transition-colors flex-shrink-0 ml-4 mt-0.5"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-800 transition-colors flex-shrink-0 mt-0.5"
           >
-            <X size={18} />
+            <X size={16} className="sm:size-18" />
           </button>
         </div>
 
@@ -121,16 +121,16 @@ export function NewLeadModal({ open, onClose }: Props) {
           onSubmit={handleSubmit(d => mutation.mutate(d))}
           className="flex-1 overflow-y-auto scrollbar-thin"
         >
-          <div className="px-7 py-6 space-y-8">
+          <div className="px-5 sm:px-7 py-4 sm:py-6 space-y-6 sm:space-y-8">
 
             {/* ── PRIMARY INFORMATION ── */}
             <section>
               <p className="text-[12px] font-bold uppercase tracking-[0.1em] text-slate-400 mb-4">
                 Primary Information
               </p>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
 
-                <div className="col-span-2 sm:col-span-1">
+                <div>
                   <Label icon={User} text="Full Name" required />
                   <input
                     {...register('name', { required: true })}
@@ -139,7 +139,7 @@ export function NewLeadModal({ open, onClose }: Props) {
                   />
                 </div>
 
-                <div className="col-span-2 sm:col-span-1">
+                <div>
                   <Label icon={Phone} text="Phone Number" required />
                   <input
                     {...register('primaryPhone', { required: true })}
@@ -148,7 +148,7 @@ export function NewLeadModal({ open, onClose }: Props) {
                   />
                 </div>
 
-                <div className="col-span-2 sm:col-span-1">
+                <div>
                   <Label icon={Mail} text="Email Address" />
                   <input
                     type="email"
@@ -158,7 +158,7 @@ export function NewLeadModal({ open, onClose }: Props) {
                   />
                 </div>
 
-                <div className="col-span-2 sm:col-span-1">
+                <div>
                   <Label icon={MapPin} text="Location" />
                   <input
                     {...register('location')}
@@ -174,9 +174,9 @@ export function NewLeadModal({ open, onClose }: Props) {
               <p className="text-[12px] font-bold uppercase tracking-[0.1em] text-slate-400 mb-4">
                 Event Requirements
               </p>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
 
-                <div className="col-span-2 sm:col-span-1">
+                <div>
                   <Label icon={Tag} text="Event Type" />
                   <select {...register('eventType')} className={inputCls}>
                     {allEventTypes.map(et => (
@@ -185,7 +185,7 @@ export function NewLeadModal({ open, onClose }: Props) {
                   </select>
                 </div>
 
-                <div className="col-span-2 sm:col-span-1">
+                <div>
                   <Label icon={Users} text="Guest Count" />
                   <input
                     type="number"
@@ -195,7 +195,7 @@ export function NewLeadModal({ open, onClose }: Props) {
                   />
                 </div>
 
-                <div className="col-span-2 sm:col-span-1">
+                <div>
                   <Label icon={Wallet} text="Budget Min (₹ Lakhs)" />
                   <input
                     type="number"
@@ -205,7 +205,7 @@ export function NewLeadModal({ open, onClose }: Props) {
                   />
                 </div>
 
-                <div className="col-span-2 sm:col-span-1">
+                <div>
                   <Label icon={Wallet} text="Budget Max (₹ Lakhs)" />
                   <input
                     type="number"
@@ -215,7 +215,7 @@ export function NewLeadModal({ open, onClose }: Props) {
                   />
                 </div>
 
-                <div className="col-span-2 sm:col-span-1">
+                <div className="sm:col-span-2">
                   <Label icon={Calendar} text="Event Date" />
                   <input
                     type="date"
@@ -231,9 +231,9 @@ export function NewLeadModal({ open, onClose }: Props) {
               <p className="text-[12px] font-bold uppercase tracking-[0.1em] text-slate-400 mb-4">
                 Classification &amp; Assignment
               </p>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
 
-                <div className="col-span-2 sm:col-span-1">
+                <div>
                   <Label icon={Tag} text="Source" />
                   <select {...register('source')} className={inputCls}>
                     {allSources.map(src => (
@@ -242,7 +242,7 @@ export function NewLeadModal({ open, onClose }: Props) {
                   </select>
                 </div>
 
-                <div className="col-span-2 sm:col-span-1">
+                <div>
                   <Label icon={Star} text="Priority" />
                   <select {...register('priority')} className={inputCls}>
                     {PRIORITIES.map(p => (
@@ -251,7 +251,7 @@ export function NewLeadModal({ open, onClose }: Props) {
                   </select>
                 </div>
 
-                <div className="col-span-2 sm:col-span-1">
+                <div>
                   <Label icon={Layers} text="Pipeline Stage" />
                   <select {...register('stageId')} className={inputCls}>
                     <option value="">Auto (New Lead)</option>
@@ -261,7 +261,7 @@ export function NewLeadModal({ open, onClose }: Props) {
                   </select>
                 </div>
 
-                <div className="col-span-2 sm:col-span-1">
+                <div>
                   <Label icon={UserCircle} text="Assign To" />
                   <select {...register('ownerId')} className={inputCls}>
                     <option value="">Unassigned</option>
@@ -271,7 +271,7 @@ export function NewLeadModal({ open, onClose }: Props) {
                   </select>
                 </div>
 
-                <div className="col-span-2">
+                <div className="sm:col-span-2">
                   <label className="block text-[14px] font-semibold text-slate-700 mb-2">Notes</label>
                   <textarea
                     {...register('notes')}
@@ -285,18 +285,18 @@ export function NewLeadModal({ open, onClose }: Props) {
           </div>
 
           {/* ── Footer buttons ── */}
-          <div className="flex gap-3 px-7 py-5 border-t border-slate-100 flex-shrink-0 bg-white">
+          <div className="flex gap-2 sm:gap-3 px-5 sm:px-7 py-4 sm:py-5 border-t border-slate-100 flex-shrink-0 bg-white">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 h-12 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-[15px] font-bold text-slate-700 tracking-wide uppercase transition-colors"
+              className="flex-1 h-10 sm:h-12 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-[13px] sm:text-[15px] font-bold text-slate-700 tracking-wide uppercase transition-colors"
             >
               Discard
             </button>
             <button
               type="submit"
               disabled={isSubmitting || mutation.isPending}
-              className="flex-1 h-12 rounded-xl bg-[#0f1f18] hover:bg-[#1F5C45] text-white text-[15px] font-bold tracking-wide uppercase transition-colors disabled:opacity-60"
+              className="flex-1 h-10 sm:h-12 rounded-xl bg-[#0f1f18] hover:bg-[#1F5C45] text-white text-[13px] sm:text-[15px] font-bold tracking-wide uppercase transition-colors disabled:opacity-60"
             >
               {mutation.isPending ? 'Creating…' : 'Create Lead'}
             </button>
@@ -310,10 +310,10 @@ export function NewLeadModal({ open, onClose }: Props) {
 /* ── Helpers ── */
 const inputCls = `
   w-full h-11 rounded-xl border border-slate-200 bg-slate-50
-  px-4 text-[16px] font-medium text-slate-900
+  px-4 text-[14px] sm:text-[16px] font-medium text-slate-900
   focus:outline-none focus:ring-2 focus:ring-[#1F5C45] focus:bg-white focus:border-transparent
   transition-all placeholder:text-slate-400 placeholder:font-normal
-  appearance-none
+  appearance-none break-words overflow-wrap-break-word
 `.replace(/\s+/g, ' ').trim();
 
 function Label({ icon: Icon, text, required }: { icon: React.ElementType; text: string; required?: boolean }) {

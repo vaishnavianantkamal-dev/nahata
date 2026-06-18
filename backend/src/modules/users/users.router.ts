@@ -1,61 +1,77 @@
-import { Router, Request, Response, NextFunction } from 'express';
+import express from 'express';
+import { requireAuth } from '../../middleware/auth';
+import { query, queryMany, queryOne } from '../../lib/db';
+import { v4 as uuidv4 } from 'uuid';
 import * as bcrypt from 'bcryptjs';
-import { db } from '../../lib/db';
-import { requireAuth, requireRole } from '../../middleware/auth';
-import { AppError } from '../../middleware/error';
 
-const router = Router();
+const router = express.Router();
+router.use(requireAuth);
 
-router.get('/', requireAuth, requireRole('OWNER', 'MANAGER'), async (_req: Request, res: Response, next: NextFunction) => {
+router.get('/', async (req, res, next) => {
   try {
-    const users = await db.user.findMany({
-      where: { deletedAt: null },
-      select: { id: true, name: true, email: true, phone: true, role: true, isActive: true, avatarUrl: true, lastLoginAt: true, createdAt: true },
-      orderBy: { name: 'asc' },
-    });
+    const users = await queryMany('SELECT id, name, email, phone, role, "isActive", "lastLoginAt", "createdAt" FROM "User" WHERE "deletedAt" IS NULL ORDER BY "createdAt" DESC');
     res.json(users);
-  } catch (err) { next(err); }
+  } catch (err) {
+    next(err);
+  }
 });
 
-router.post('/', requireAuth, requireRole('OWNER'), async (req: Request, res: Response, next: NextFunction) => {
+router.post('/', async (req, res, next) => {
   try {
-    const { name, email, phone, role, password } = req.body;
-    const exists = await db.user.findUnique({ where: { email } });
-    if (exists) throw new AppError(409, 'EMAIL_EXISTS', 'Email already in use');
-    const passwordHash = await bcrypt.hash(password, 12);
-    const user = await db.user.create({
-      data: { name, email, phone, role, passwordHash },
-      select: { id: true, name: true, email: true, phone: true, role: true, isActive: true, createdAt: true },
-    });
+    const { name, email, password, phone, role } = req.body;
+    const hash = await bcrypt.hash(password, 12);
+    const now = new Date();
+    const id = uuidv4();
+    
+    await query(
+      'INSERT INTO "User" (id, name, email, phone, "passwordHash", role, "isActive", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',
+      [id, name, email, phone, hash, role || 'AGENT', true, now, now]
+    );
+    
+    const user = await queryOne('SELECT id, name, email, phone, role, "isActive", "createdAt" FROM "User" WHERE id = $1', [id]);
     res.status(201).json(user);
-  } catch (err) { next(err); }
+  } catch (err) {
+    next(err);
+  }
 });
 
-router.patch('/:id', requireAuth, requireRole('OWNER'), async (req: Request, res: Response, next: NextFunction) => {
+router.patch('/:id', async (req, res, next) => {
   try {
-    const { name, phone, role, isActive, password } = req.body;
-    const data: any = {};
-    if (name) data.name = name;
-    if (phone) data.phone = phone;
-    if (role) data.role = role;
-    if (typeof isActive === 'boolean') data.isActive = isActive;
-    if (password) data.passwordHash = await bcrypt.hash(password, 12);
-
-    const user = await db.user.update({
-      where: { id: req.params.id },
-      data,
-      select: { id: true, name: true, email: true, phone: true, role: true, isActive: true, createdAt: true },
-    });
+    const now = new Date();
+    const updates = [];
+    const params = [];
+    let paramIndex = 2;
+    
+    if (req.body.name) {
+      updates.push(`name = $${paramIndex++}`);
+      params.push(req.body.name);
+    }
+    if (req.body.phone) {
+      updates.push(`phone = $${paramIndex++}`);
+      params.push(req.body.phone);
+    }
+    if (req.body.role) {
+      updates.push(`role = $${paramIndex++}`);
+      params.push(req.body.role);
+    }
+    if (req.body.isActive !== undefined) {
+      updates.push(`"isActive" = $${paramIndex++}`);
+      params.push(req.body.isActive);
+    }
+    
+    updates.push(`"updatedAt" = $${paramIndex++}`);
+    params.push(now);
+    params.unshift(req.params.id);
+    
+    if (updates.length > 1) {
+      await query(`UPDATE "User" SET ${updates.join(', ')} WHERE id = $1`, params);
+    }
+    
+    const user = await queryOne('SELECT id, name, email, phone, role, "isActive", "createdAt" FROM "User" WHERE id = $1', [req.params.id]);
     res.json(user);
-  } catch (err) { next(err); }
-});
-
-router.delete('/:id', requireAuth, requireRole('OWNER'), async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    if (req.user!.userId === req.params.id) throw new AppError(400, 'SELF_DELETE', 'Cannot delete your own account');
-    await db.user.update({ where: { id: req.params.id }, data: { isActive: false, deletedAt: new Date() } });
-    res.json({ success: true });
-  } catch (err) { next(err); }
+  } catch (err) {
+    next(err);
+  }
 });
 
 export default router;

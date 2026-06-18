@@ -6,7 +6,8 @@ import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import * as bcrypt from 'bcryptjs';
-import { connectDB, db } from './lib/db';
+import { v4 as uuidv4 } from 'uuid';
+import { connectDB, query, queryOne, queryMany } from './lib/db';
 import { getRedis } from './lib/redis';
 import { initSocket } from './lib/socket';
 import { logger } from './lib/logger';
@@ -19,18 +20,22 @@ async function autoSeed() {
     // 1. Create owner user if not exists
     const ownerEmail = process.env.SEED_OWNER_EMAIL || 'owner@nahatalawns.com';
     const ownerPass  = (process.env.SEED_OWNER_PASSWORD) || 'NahataOwner2024!';
-    const existing   = await db.user.findUnique({ where: { email: ownerEmail } });
+    const existing   = await queryOne('SELECT * FROM "User" WHERE email = $1', [ownerEmail]);
     if (!existing) {
       const hash = await bcrypt.hash(ownerPass, 12);
-      await db.user.create({
-        data: { name: 'Nahata Lawns Owner', email: ownerEmail, phone: '+919876543210', passwordHash: hash, role: 'OWNER', isActive: true },
-      });
+      const now = new Date();
+      await query(
+        'INSERT INTO "User" (id, name, email, phone, "passwordHash", role, "isActive", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',
+        [uuidv4(), 'Nahata Lawns Owner', ownerEmail, '+919876543210', hash, 'OWNER', true, now, now]
+      );
       logger.info(`✅ Owner user created: ${ownerEmail}`);
     }
 
     // 2. Seed default stages if none exist
-    const stageCount = await db.stage.count();
-    if (stageCount === 0) {
+    const stageCount = await queryOne<{ count: number }>(
+      'SELECT COUNT(*) as count FROM "Stage"'
+    );
+    if ((stageCount?.count || 0) === 0) {
       const stages = [
         { name: 'New Lead',              key: 'new',         order: 1, color: '#64748b', isDefault: true },
         { name: 'Contacted',             key: 'contacted',   order: 2, color: '#0ea5e9' },
@@ -40,8 +45,12 @@ async function autoSeed() {
         { name: 'Confirmed',             key: 'confirmed',   order: 6, color: '#16a34a', isWon: true },
         { name: 'Lost / Not Interested', key: 'lost',        order: 7, color: '#94a3b8', isLost: true },
       ];
+      const now = new Date();
       for (const s of stages) {
-        await db.stage.upsert({ where: { key: s.key }, update: {}, create: { ...s, isWon: (s as any).isWon || false, isLost: (s as any).isLost || false, isDefault: (s as any).isDefault || false } });
+        await query(
+          'INSERT INTO "Stage" (id, name, key, "order", color, "isWon", "isLost", "isDefault", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
+          [uuidv4(), s.name, s.key, s.order, s.color, (s as any).isWon || false, (s as any).isLost || false, (s as any).isDefault || false, now, now]
+        );
       }
       logger.info('✅ Default stages created');
     }
@@ -56,21 +65,38 @@ async function autoSeed() {
       { key: 'customEventTypes', value: [] },
       { key: 'customSources',    value: [] },
     ];
+    const now = new Date();
     for (const s of settingsData) {
-      await db.setting.upsert({ where: { key: s.key }, update: {}, create: s });
+      await query(
+        'INSERT INTO "Setting" (id, key, value, "updatedAt") VALUES ($1, $2, $3, $4) ON CONFLICT (key) DO NOTHING',
+        [uuidv4(), s.key, JSON.stringify(s.value), now]
+      );
     }
 
     // 4. Seed template groups if none exist
-    const tgCount = await db.templateGroup.count();
-    if (tgCount === 0) {
-      const tg = await db.templateGroup.create({ data: { name: 'Welcome & Enquiry', icon: '👋', color: '#0ea5e9', order: 1, isSystem: true } });
-      const template = await db.template.create({
-        data: { groupId: tg.id, name: 'Instant Welcome', body: 'Namaste {Name} 🙏 Thank you for your interest in Nahata Lawns! We\'d love to host your special day. May we know your event date & guest count?', order: 1 },
-      });
-      // Bind welcome template to New Lead stage
-      const newStage = await db.stage.findFirst({ where: { key: 'new' } });
+    const tgCount = await queryOne<{ count: number }>(
+      'SELECT COUNT(*) as count FROM "TemplateGroup"'
+    );
+    if ((tgCount?.count || 0) === 0) {
+      const tgId = uuidv4();
+      const tplId = uuidv4();
+      await query(
+        'INSERT INTO "TemplateGroup" (id, name, icon, color, "order", "isSystem", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+        [tgId, 'Welcome & Enquiry', '👋', '#0ea5e9', 1, true, now, now]
+      );
+      await query(
+        'INSERT INTO "Template" (id, "groupId", name, body, language, "order", "isActive", channel, "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
+        [tplId, tgId, 'Instant Welcome', 'Namaste {Name} 🙏 Thank you for your interest in Nahata Lawns! We\'d love to host your special day. May we know your event date & guest count?', 'en', 1, true, 'WHATSAPP', now, now]
+      );
+      const newStage = await queryOne<{ id: string }>(
+        'SELECT id FROM "Stage" WHERE key = $1',
+        ['new']
+      );
       if (newStage) {
-        await db.stageMessageBinding.upsert({ where: { stageId: newStage.id }, update: {}, create: { stageId: newStage.id, templateId: template.id, enabled: true } });
+        await query(
+          'INSERT INTO "StageMessageBinding" (id, "stageId", "templateId", channel, enabled, "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, $7)',
+          [uuidv4(), newStage.id, tplId, 'WHATSAPP', true, now, now]
+        );
       }
       logger.info('✅ Default templates created');
     }
@@ -113,6 +139,7 @@ async function bootstrap() {
       const allowed = [
         env.APP_BASE_URL,
         'http://localhost:5173',
+        'http://localhost:5174',
         'http://localhost:3000',
       ];
       if (!origin || allowed.includes(origin) || /\.vercel\.app$/.test(origin)) {
@@ -138,8 +165,8 @@ async function bootstrap() {
   app.get('/healthz', (_req, res) => res.json({ status: 'ok', ts: new Date() }));
   app.get('/readyz', async (_req, res) => {
     try {
-      const { db } = await import('./lib/db');
-      await db.$queryRaw`SELECT 1`;
+      const { query: dbQuery } = await import('./lib/db');
+      await dbQuery('SELECT 1');
       res.json({ status: 'ready' });
     } catch {
       res.status(503).json({ status: 'not ready' });

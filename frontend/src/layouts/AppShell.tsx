@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard, Users, Kanban, MessageSquare, FileText,
+  LayoutDashboard, Users, Kanban,
   BarChart2, Settings, Menu, X, Plus, Bell, LogOut, ClipboardList,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -15,10 +15,6 @@ const navGroups = [
     { to: '/dashboard', label: 'Dashboard',     icon: LayoutDashboard },
     { to: '/leads',     label: 'Leads',         icon: Users },
     { to: '/pipeline',  label: 'Pipeline',      icon: Kanban },
-  ]},
-  { section: 'AUTOMATION', items: [
-    { to: '/whatsapp',  label: 'WhatsApp Flow', icon: MessageSquare },
-    { to: '/templates', label: 'Templates',     icon: FileText },
   ]},
   { section: 'BUSINESS', items: [
     { to: '/quotations', label: 'Quotations',   icon: ClipboardList },
@@ -41,7 +37,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#0f1f18] w-[400px] flex-shrink-0">
+    <div className="flex flex-col h-full bg-[#0f1f18] w-full sm:w-64 md:w-80 xl:w-96 flex-shrink-0">
       {/* Brand */}
       <div className="flex items-center gap-3 px-5 py-5 border-b border-white/10">
         <span className="text-2xl leading-none">🌿</span>
@@ -110,15 +106,15 @@ export function AppShell() {
   return (
     <div className="flex h-screen bg-[#f5f6fa] overflow-hidden">
       {/* Sidebar — always visible on tablets and above */}
-      <div className="hidden sm:flex flex-shrink-0">
+      <div className="hidden md:flex flex-shrink-0">
         <SidebarContent />
       </div>
 
-      {/* Mobile overlay sidebar (small phones only) */}
+      {/* Mobile overlay sidebar (below tablets) */}
       {sidebarOpen && (
         <>
-          <div className="fixed inset-0 z-40 bg-black/50 sm:hidden" onClick={() => setSidebarOpen(false)} />
-          <div className="fixed inset-y-0 left-0 z-50 flex sm:hidden">
+          <div className="fixed inset-0 z-40 bg-black/50 md:hidden" onClick={() => setSidebarOpen(false)} />
+          <div className="fixed inset-y-0 left-0 z-50 flex md:hidden">
             <SidebarContent onClose={() => setSidebarOpen(false)} />
           </div>
         </>
@@ -132,7 +128,7 @@ export function AppShell() {
           {/* Mobile menu */}
           <button
             onClick={() => setSidebarOpen(true)}
-            className="sm:hidden p-1.5 text-white/60 hover:text-white rounded-lg"
+            className="md:hidden p-1.5 text-white/60 hover:text-white rounded-lg"
           >
             <Menu size={20} />
           </button>
@@ -141,9 +137,9 @@ export function AppShell() {
           <div className="flex-1" />
 
           {/* Date */}
-          <div className="hidden sm:flex items-center gap-2 bg-white/10 border border-white/15 rounded-xl px-4 py-2">
+          <div className="hidden md:flex items-center gap-2 bg-white/10 border border-white/15 rounded-xl px-3 sm:px-4 py-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-white/80 text-[15px] font-semibold whitespace-nowrap">
+            <span className="text-white/80 text-[13px] sm:text-[15px] font-semibold whitespace-nowrap">
               {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
             </span>
           </div>
@@ -151,13 +147,13 @@ export function AppShell() {
           {/* + New Lead */}
           <button
             onClick={() => setNewLeadOpen(true)}
-            className="flex items-center gap-2 bg-[#C9A24B] hover:bg-[#a07d2e] text-white px-5 py-2 rounded-xl font-bold text-[15px] transition-all shadow-lg shadow-[#C9A24B]/30 hover:-translate-y-0.5"
+            className="hidden sm:flex items-center gap-2 bg-[#C9A24B] hover:bg-[#a07d2e] text-white px-3 sm:px-5 py-2 rounded-xl font-bold text-[13px] sm:text-[15px] transition-all shadow-lg shadow-[#C9A24B]/30 hover:-translate-y-0.5 whitespace-nowrap"
           >
             <Plus size={16} /> New Lead
           </button>
 
           {/* Bell */}
-          <button className="p-2 text-white/50 hover:text-white hover:bg-white/10 rounded-xl transition-colors">
+          <button className="hidden sm:block p-2 text-white/50 hover:text-white hover:bg-white/10 rounded-xl transition-colors">
             <Bell size={19} />
           </button>
         </header>

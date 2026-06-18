@@ -75,8 +75,8 @@ router.get('/:id/timeline', async (req: Request, res: Response, next: NextFuncti
 
 router.delete('/:id', requireRole('OWNER'), async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { db } = await import('../../lib/db');
-    await db.lead.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    const { query } = await import('../../lib/db');
+    await query('UPDATE "Lead" SET "deletedAt" = $1, "updatedAt" = $2 WHERE id = $3', [new Date(), new Date(), req.params.id]);
     res.json({ success: true });
   } catch (e) { next(e); }
 });

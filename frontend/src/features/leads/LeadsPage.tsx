@@ -95,13 +95,13 @@ export function LeadsPage() {
   const total = data?.total || 0;
 
   return (
-    <div className="px-6 lg:px-8 py-6 space-y-5">
+    <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-5">
 
       {/* ── Header ──────────────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-[30px] font-display font-bold text-slate-900 leading-tight">Leads</h1>
-          <p className="text-[19px] text-slate-600 font-medium mt-1">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+        <div className="min-w-0">
+          <h1 className="text-[28px] sm:text-[30px] font-display font-bold text-slate-900 leading-tight">Leads</h1>
+          <p className="text-[17px] sm:text-[19px] text-slate-600 font-medium mt-1 truncate">
             {isLoading ? '…' : total} total enquiries — unified inbox
           </p>
         </div>
@@ -114,20 +114,20 @@ export function LeadsPage() {
       </div>
 
       {/* ── Filters ─────────────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap gap-2.5">
-        <div className="relative flex-1 min-w-60">
+      <div className="flex flex-wrap gap-2 sm:gap-2.5">
+        <div className="relative flex-1 min-w-fit">
           <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
           <Input
-            placeholder="Search by name or phone…"
-            className="pl-10 h-10 rounded-xl border-slate-200 text-[19px] font-medium bg-white"
+            placeholder="Search…"
+            className="pl-10 h-10 rounded-xl border-slate-200 text-[17px] sm:text-[19px] font-medium bg-white w-full"
             value={search}
             onChange={e => { setSearch(e.target.value); setPage(1); }}
           />
         </div>
 
         <Select value={source || '_all'} onValueChange={v => { setSource(v === '_all' ? '' : v); setPage(1); }}>
-          <SelectTrigger className="w-40 h-10 rounded-xl font-semibold text-[20px] bg-white">
-            <SelectValue placeholder="All Sources" />
+          <SelectTrigger className="w-32 sm:w-40 h-10 rounded-xl font-semibold text-[16px] sm:text-[20px] bg-white">
+            <SelectValue placeholder="Source" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="_all">All Sources</SelectItem>
@@ -138,8 +138,8 @@ export function LeadsPage() {
         </Select>
 
         <Select value={scoreBand || '_all'} onValueChange={v => { setScoreBand(v === '_all' ? '' : v); setPage(1); }}>
-          <SelectTrigger className="w-36 h-10 rounded-xl font-semibold text-[20px] bg-white">
-            <SelectValue placeholder="All Scores" />
+          <SelectTrigger className="w-28 sm:w-36 h-10 rounded-xl font-semibold text-[16px] sm:text-[20px] bg-white">
+            <SelectValue placeholder="Score" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="_all">All Scores</SelectItem>
@@ -151,13 +151,13 @@ export function LeadsPage() {
         </Select>
 
         <Select value={sort} onValueChange={v => { setSort(v); setPage(1); }}>
-          <SelectTrigger className="w-44 h-10 rounded-xl font-semibold text-[20px] bg-white">
-            <SelectValue />
+          <SelectTrigger className="w-28 sm:w-44 h-10 rounded-xl font-semibold text-[16px] sm:text-[20px] bg-white">
+            <SelectValue placeholder="Sort" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="createdAt">Newest First</SelectItem>
-            <SelectItem value="score">By Score (Hot first)</SelectItem>
-            <SelectItem value="lastContactAt">Last Contacted</SelectItem>
+            <SelectItem value="createdAt">Newest</SelectItem>
+            <SelectItem value="score">By Score</SelectItem>
+            <SelectItem value="lastContactAt">Last Contact</SelectItem>
             <SelectItem value="eventDate">Event Date</SelectItem>
           </SelectContent>
         </Select>
@@ -165,26 +165,29 @@ export function LeadsPage() {
 
       {/* ── Table ───────────────────────────────────────────────────────────── */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto scrollbar-thin">
           <table>
             <thead>
               <tr>
-                <th className="text-left pl-5">NAME</th>
-                <th className="text-left">SOURCE</th>
-                <th className="text-left">FUNCTION</th>
-                <th className="text-left">STAGE</th>
-                <th className="text-left">SCORE</th>
-                <th className="text-left">LAST CONTACT</th>
-                <th className="text-center pr-4">ACTIONS</th>
+                <th className="text-left pl-4 sm:pl-5">NAME</th>
+                <th className="text-left hidden sm:table-cell">SOURCE</th>
+                <th className="text-left hidden md:table-cell">FUNCTION</th>
+                <th className="text-left hidden lg:table-cell">STAGE</th>
+                <th className="text-left hidden xl:table-cell">SCORE</th>
+                <th className="text-left hidden lg:table-cell">LAST CONTACT</th>
+                <th className="text-center pr-4 sm:pr-5">ACTIONS</th>
               </tr>
             </thead>
             <tbody>
               {/* Loading skeletons */}
               {isLoading && [...Array(5)].map((_, i) => (
                 <tr key={i}>
-                  {[140, 100, 130, 110, 70, 100, 120].map((w, j) => (
-                    <td key={j} className="px-5 py-4">
-                      <div className="h-4 bg-slate-100 rounded-lg animate-pulse" style={{ width: w }} />
+                  <td className="px-4 sm:px-5 py-3 sm:py-4">
+                    <div className="h-4 bg-slate-100 rounded-lg animate-pulse w-40" />
+                  </td>
+                  {[1, 2, 3, 4, 5, 6].map((j) => (
+                    <td key={j} className="px-4 sm:px-5 py-3 sm:py-4 hidden sm:table-cell">
+                      <div className="h-4 bg-slate-100 rounded-lg animate-pulse w-24" />
                     </td>
                   ))}
                 </tr>
@@ -217,87 +220,87 @@ export function LeadsPage() {
               {!isLoading && leads.map((lead: any) => (
                 <tr key={lead.id}>
                   {/* Name + phone */}
-                  <td className="pl-5 pr-4">
+                  <td className="pl-4 sm:pl-5 pr-2 sm:pr-4">
                     <button
                       onClick={() => navigate(`/leads/${lead.id}`)}
                       className="text-left group"
                     >
-                      <p className="text-[19px] font-bold text-slate-900 group-hover:text-[#1F5C45] transition-colors leading-snug">
+                      <p className="text-[16px] sm:text-[19px] font-bold text-slate-900 group-hover:text-[#1F5C45] transition-colors leading-snug truncate">
                         {lead.name}
                       </p>
-                      <p className="cell-sub">{lead.primaryPhone}</p>
+                      <p className="cell-sub text-[14px] sm:text-[16px] truncate">{lead.primaryPhone}</p>
                     </button>
                   </td>
 
                   {/* Source badge */}
-                  <td>
-                    <span className={cn('inline-block px-2.5 py-1 rounded-lg text-[20px] font-bold border', sourceColor(lead.source))}>
+                  <td className="hidden sm:table-cell pr-2 sm:pr-4">
+                    <span className={cn('inline-block px-2.5 py-1 rounded-lg text-[16px] sm:text-[20px] font-bold border whitespace-nowrap', sourceColor(lead.source))}>
                       {sourceLabel(lead.source)}
                     </span>
                   </td>
 
                   {/* Function */}
-                  <td>
-                    <span className="text-[19px] font-semibold text-slate-900">
+                  <td className="hidden md:table-cell pr-2 sm:pr-4">
+                    <span className="text-[16px] sm:text-[19px] font-semibold text-slate-900 block truncate">
                       {eventTypeLabel(lead.eventType)}
                     </span>
                     {lead.guestCount && (
-                      <span className="cell-sub block">{lead.guestCount} pax</span>
+                      <span className="cell-sub block text-[14px] sm:text-[16px]">{lead.guestCount} pax</span>
                     )}
                   </td>
 
                   {/* Stage */}
-                  <td>
-                    <span className="inline-flex items-center gap-2">
+                  <td className="hidden lg:table-cell pr-2 sm:pr-4">
+                    <span className="inline-flex items-center gap-2 whitespace-nowrap">
                       <span
                         className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                         style={{ backgroundColor: lead.stage?.color || '#94a3b8' }}
                       />
-                      <span className="text-[19px] font-semibold text-slate-900">{lead.stage?.name}</span>
+                      <span className="text-[16px] sm:text-[19px] font-semibold text-slate-900 truncate">{lead.stage?.name}</span>
                     </span>
                   </td>
 
                   {/* Score */}
-                  <td>
+                  <td className="hidden xl:table-cell pr-2 sm:pr-4">
                     {lead.scoreBand !== 'UNSCORED' ? (
                       <span className={cn(
-                        'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[19px] font-bold border',
+                        'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[16px] sm:text-[19px] font-bold border whitespace-nowrap',
                         scoreBandColor(lead.scoreBand),
                       )}>
                         {scoreBandIcon(lead.scoreBand)} {lead.score}
                       </span>
                     ) : (
-                      <span className="text-[20px] text-slate-500 font-semibold">—</span>
+                      <span className="text-[16px] sm:text-[20px] text-slate-500 font-semibold">—</span>
                     )}
                   </td>
 
                   {/* Last contact */}
-                  <td>
-                    <span className="text-[20px] font-semibold text-slate-700">
+                  <td className="hidden lg:table-cell pr-2 sm:pr-4">
+                    <span className="text-[16px] sm:text-[20px] font-semibold text-slate-700">
                       {relativeTime(lead.lastContactAt)}
                     </span>
                   </td>
 
                   {/* ── Actions — always visible ───────────────────────────── */}
-                  <td className="pr-4">
+                  <td className="pr-3 sm:pr-4">
                     <div className="flex items-center justify-center gap-0.5">
 
                       {/* VIEW */}
                       <button
                         onClick={() => navigate(`/leads/${lead.id}`)}
                         title="View details"
-                        className="p-2 rounded-lg text-slate-500 hover:text-[#1F5C45] hover:bg-green-50 transition-all"
+                        className="p-1.5 sm:p-2 rounded-lg text-slate-500 hover:text-[#1F5C45] hover:bg-green-50 transition-all"
                       >
-                        <Eye size={16} />
+                        <Eye size={14} className="sm:size-4" />
                       </button>
 
                       {/* EDIT */}
                       <button
                         onClick={() => setEditLead(lead)}
                         title="Edit lead"
-                        className="p-2 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-all"
+                        className="p-1.5 sm:p-2 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-all"
                       >
-                        <Pencil size={16} />
+                        <Pencil size={14} className="sm:size-4" />
                       </button>
 
                       {/* MARK WON */}
@@ -306,9 +309,9 @@ export function LeadsPage() {
                           onClick={() => wonMutation.mutate(lead.id)}
                           title="Mark as Won"
                           disabled={wonMutation.isPending}
-                          className="p-2 rounded-lg text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 transition-all disabled:opacity-40"
+                          className="p-1.5 sm:p-2 rounded-lg text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 transition-all disabled:opacity-40"
                         >
-                          <CheckCircle size={16} />
+                          <CheckCircle size={14} className="sm:size-4" />
                         </button>
                       )}
 
@@ -316,9 +319,9 @@ export function LeadsPage() {
                       <button
                         onClick={() => setDeleteTarget(lead)}
                         title="Delete lead"
-                        className="p-2 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 transition-all"
+                        className="p-1.5 sm:p-2 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 transition-all"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={14} className="sm:size-4" />
                       </button>
                     </div>
                   </td>
@@ -330,18 +333,18 @@ export function LeadsPage() {
 
         {/* Pagination */}
         {total > 25 && (
-          <div className="flex items-center justify-between px-5 py-4 border-t border-slate-100 bg-slate-50">
-            <span className="text-[20px] font-semibold text-slate-600">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 px-4 sm:px-5 py-3 sm:py-4 border-t border-slate-100 bg-slate-50">
+            <span className="text-[15px] sm:text-[20px] font-semibold text-slate-600">
               Showing {Math.min((page-1)*25+1, total)}–{Math.min(page*25, total)} of{' '}
               <strong className="text-slate-900">{total}</strong>
             </span>
-            <div className="flex gap-2">
+            <div className="flex gap-2 w-full sm:w-auto">
               <Button variant="outline" size="sm" disabled={page===1}
-                onClick={() => setPage(p => p-1)} className="h-9 rounded-xl font-semibold">
+                onClick={() => setPage(p => p-1)} className="h-8 sm:h-9 rounded-xl font-semibold flex-1 sm:flex-none text-[14px]">
                 ← Prev
               </Button>
               <Button variant="outline" size="sm" disabled={page*25>=total}
-                onClick={() => setPage(p => p+1)} className="h-9 rounded-xl font-semibold">
+                onClick={() => setPage(p => p+1)} className="h-8 sm:h-9 rounded-xl font-semibold flex-1 sm:flex-none text-[14px]">
                 Next →
               </Button>
             </div>

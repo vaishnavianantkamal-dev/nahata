@@ -85,6 +85,8 @@ table tbody td {
   font-weight: 500;
   color: #0f172a;
   vertical-align: middle;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 table tbody td .cell-sub {
@@ -92,4 +94,21 @@ table tbody td .cell-sub {
   font-weight: 500;
   color: #475569;
   margin-top: 3px;
+}
+
+/* Mobile responsive table adjustments */
+@media (max-width: 640px) {
+  table thead th {
+    font-size: 11px;
+    padding: 10px 12px;
+  }
+
+  table tbody td {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  table tbody td .cell-sub {
+    font-size: 12px;
+  }
 }

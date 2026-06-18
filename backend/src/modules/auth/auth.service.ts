@@ -1,7 +1,7 @@
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import * as crypto from 'crypto';
-import { db } from '../../lib/db';
+import { query, queryOne, transaction } from '../../lib/db';
 import { env } from '../../config/env';
 import { AppError } from '../../middleware/error';
 
@@ -14,7 +14,10 @@ function signRefreshToken() {
 }
 
 export async function login(email: string, password: string) {
-  const user = await db.user.findUnique({ where: { email } });
+  const user = await queryOne<any>(
+    'SELECT * FROM "User" WHERE email = $1',
+    [email]
+  );
   if (!user || !user.isActive) throw new AppError(401, 'INVALID_CREDENTIALS', 'Invalid email or password');
 
   const valid = await bcrypt.compare(password, user.passwordHash);
@@ -25,8 +28,14 @@ export async function login(email: string, password: string) {
   const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
 
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-  await db.refreshToken.create({ data: { userId: user.id, tokenHash, expiresAt } });
-  await db.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
+  await query(
+    'INSERT INTO "RefreshToken" (id, "userId", "tokenHash", "expiresAt", "createdAt") VALUES ($1, $2, $3, $4, $5)',
+    [crypto.randomUUID(), user.id, tokenHash, expiresAt, new Date()]
+  );
+  await query(
+    'UPDATE "User" SET "lastLoginAt" = $1, "updatedAt" = $2 WHERE id = $3',
+    [new Date(), new Date(), user.id]
+  );
 
   const { passwordHash: _, ...safeUser } = user;
   return { user: safeUser, accessToken, refreshToken };
@@ -34,22 +43,33 @@ export async function login(email: string, password: string) {
 
 export async function refreshAccessToken(rawToken: string) {
   const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
-  const stored = await db.refreshToken.findUnique({ where: { tokenHash } });
+  const stored = await queryOne<any>(
+    'SELECT * FROM "RefreshToken" WHERE "tokenHash" = $1',
+    [tokenHash]
+  );
 
   if (!stored || stored.isRevoked || stored.expiresAt < new Date()) {
     throw new AppError(401, 'REFRESH_TOKEN_INVALID', 'Invalid or expired refresh token');
   }
 
-  const user = await db.user.findUnique({ where: { id: stored.userId } });
+  const user = await queryOne<any>(
+    'SELECT * FROM "User" WHERE id = $1',
+    [stored.userId]
+  );
   if (!user || !user.isActive) throw new AppError(401, 'USER_INACTIVE', 'Account is inactive');
 
-  // Rotate refresh token
-  await db.refreshToken.update({ where: { tokenHash }, data: { isRevoked: true } });
+  await query(
+    'UPDATE "RefreshToken" SET "isRevoked" = true WHERE "tokenHash" = $1',
+    [tokenHash]
+  );
 
   const newRefreshToken = signRefreshToken();
   const newHash = crypto.createHash('sha256').update(newRefreshToken).digest('hex');
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-  await db.refreshToken.create({ data: { userId: user.id, tokenHash: newHash, expiresAt } });
+  await query(
+    'INSERT INTO "RefreshToken" (id, "userId", "tokenHash", "expiresAt", "createdAt") VALUES ($1, $2, $3, $4, $5)',
+    [crypto.randomUUID(), user.id, newHash, expiresAt, new Date()]
+  );
 
   const accessToken = signAccessToken(user.id, user.role, user.email);
   return { accessToken, refreshToken: newRefreshToken };
@@ -57,14 +77,17 @@ export async function refreshAccessToken(rawToken: string) {
 
 export async function logout(rawToken: string) {
   const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
-  await db.refreshToken.updateMany({ where: { tokenHash }, data: { isRevoked: true } });
+  await query(
+    'UPDATE "RefreshToken" SET "isRevoked" = true WHERE "tokenHash" = $1',
+    [tokenHash]
+  );
 }
 
 export async function getMe(userId: string) {
-  const user = await db.user.findUnique({
-    where: { id: userId },
-    select: { id: true, name: true, email: true, phone: true, role: true, avatarUrl: true, isActive: true, lastLoginAt: true, createdAt: true },
-  });
+  const user = await queryOne<any>(
+    'SELECT id, name, email, phone, role, "avatarUrl", "isActive", "lastLoginAt", "createdAt" FROM "User" WHERE id = $1',
+    [userId]
+  );
   if (!user) throw new AppError(404, 'NOT_FOUND', 'User not found');
   return user;
 }

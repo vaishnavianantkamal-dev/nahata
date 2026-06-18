@@ -65,67 +65,67 @@ function QuotationDefaultsCard() {
     setNewUnit('');
   };
 
-  const inp = 'w-full h-10 rounded-xl border border-slate-200 bg-white px-3 text-[15px] font-medium focus:outline-none focus:ring-2 focus:ring-[#1F5C45]';
+  const inp = 'w-full h-8 rounded-lg border border-slate-200 bg-white px-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#1F5C45]';
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-      <div className="flex items-center justify-between gap-3 px-6 py-4 border-b border-slate-100 bg-slate-50/60">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[#1F5C45]/10 flex items-center justify-center">
-            <ClipboardList size={18} className="text-[#1F5C45]" />
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-slate-100 bg-slate-50/60">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-[#1F5C45]/10 flex items-center justify-center">
+            <ClipboardList size={16} className="text-[#1F5C45]" />
           </div>
-          <h2 className="text-[18px] font-display font-bold text-slate-900">Quotation Defaults</h2>
+          <h2 className="text-base font-display font-bold text-slate-900">Quotation Defaults</h2>
         </div>
         <button onClick={saveAll} disabled={saving}
-          className="flex items-center gap-1.5 bg-[#1F5C45] hover:bg-[#143d2e] text-white text-[14px] font-bold px-4 py-2 rounded-xl disabled:opacity-50 transition-colors">
-          <Check size={14} /> {saving ? 'Saving…' : 'Save Changes'}
+          className="flex items-center gap-1 bg-[#1F5C45] hover:bg-[#143d2e] text-white text-xs font-bold px-3 py-1.5 rounded-lg disabled:opacity-50 transition-colors">
+          <Check size={12} /> {saving ? 'Saving…' : 'Save'}
         </button>
       </div>
-      <div className="p-6 space-y-5">
+      <div className="p-4 space-y-3">
 
         {/* Numeric defaults */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-3">
           <div>
-            <label className="block text-[13px] font-bold text-slate-600 mb-1.5">Default Validity (days)</label>
+            <label className="block text-xs font-bold text-slate-600 mb-1">Default Validity (days)</label>
             <input type="number" value={validityDays} onChange={e => setValidityDays(+e.target.value)} className={inp} min={1} max={365} />
-            <p className="text-[12px] text-slate-400 mt-1">Pre-filled in every new quotation</p>
+            <p className="text-xs text-slate-400 mt-0.5">Pre-filled in every new quotation</p>
           </div>
           <div>
-            <label className="block text-[13px] font-bold text-slate-600 mb-1.5">Default Advance Required (%)</label>
+            <label className="block text-xs font-bold text-slate-600 mb-1">Default Advance (%)</label>
             <input type="number" value={advancePct} onChange={e => setAdvancePct(+e.target.value)} className={inp} min={0} max={100} />
-            <p className="text-[12px] text-slate-400 mt-1">Shown in PDF and calculations</p>
+            <p className="text-xs text-slate-400 mt-0.5">Shown in PDF and calculations</p>
           </div>
           <div>
-            <label className="block text-[13px] font-bold text-slate-600 mb-1.5">Default GST (%)</label>
+            <label className="block text-xs font-bold text-slate-600 mb-1">Default GST (%)</label>
             <input type="number" value={defaultGst} onChange={e => setDefaultGst(+e.target.value)} className={inp} min={0} max={28} />
-            <p className="text-[12px] text-slate-400 mt-1">Common values: 0%, 5%, 12%, 18%</p>
+            <p className="text-xs text-slate-400 mt-0.5">Common: 0%, 5%, 12%, 18%</p>
           </div>
         </div>
 
         {/* Default terms */}
         <div>
-          <label className="block text-[13px] font-bold text-slate-600 mb-1.5">Default Terms & Conditions</label>
+          <label className="block text-xs font-bold text-slate-600 mb-1">Default Terms & Conditions</label>
           <textarea
             value={defaultTerms}
             onChange={e => setDefaultTerms(e.target.value)}
-            rows={4}
-            placeholder="e.g. 50% advance required to confirm booking. Balance due 7 days before event. Cancellation charges apply..."
-            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-[15px] font-medium focus:outline-none focus:ring-2 focus:ring-[#1F5C45] resize-none"
+            rows={3}
+            placeholder="e.g. 50% advance required to confirm booking. Balance due 7 days before event..."
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#1F5C45] resize-none"
           />
-          <p className="text-[12px] text-slate-400 mt-1">This text will be pre-filled in the Terms field of every new quotation</p>
+          <p className="text-xs text-slate-400 mt-0.5">Pre-filled in every new quotation</p>
         </div>
 
         {/* Units management */}
         <div>
-          <label className="block text-[13px] font-bold text-slate-600 mb-2">Measurement Units</label>
-          <p className="text-[13px] text-slate-400 mb-3">These units appear in the quotation item table (Length, Width, Area dropdowns)</p>
-          <div className="flex flex-wrap gap-2 mb-3">
+          <label className="block text-xs font-bold text-slate-600 mb-1">Measurement Units</label>
+          <p className="text-xs text-slate-400 mb-2">Appear in quotation item dropdowns</p>
+          <div className="flex flex-wrap gap-1.5 mb-2">
             {units.map(u => (
-              <div key={u} className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5">
-                <span className="text-[14px] font-semibold text-slate-700">{u}</span>
+              <div key={u} className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded px-2 py-1">
+                <span className="text-xs font-semibold text-slate-700">{u}</span>
                 <button onClick={() => setUnits(prev => prev.filter(x => x !== u))}
-                  className="text-slate-400 hover:text-red-500 transition-colors ml-1">
-                  <XCircle size={13} />
+                  className="text-slate-400 hover:text-red-500 transition-colors">
+                  <XCircle size={12} />
                 </button>
               </div>
             ))}
@@ -136,11 +136,11 @@ function QuotationDefaultsCard() {
               onChange={e => setNewUnit(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') addUnit(); }}
               placeholder="e.g. Ltr, Kg, Pair, Trip..."
-              className="flex-1 h-10 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-3 text-[14px] font-medium focus:outline-none focus:ring-2 focus:ring-[#1F5C45] focus:border-transparent focus:bg-white transition-all"
+              className="flex-1 h-8 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#1F5C45] focus:border-transparent focus:bg-white transition-all"
             />
             <button onClick={addUnit} disabled={!newUnit.trim()}
-              className="px-4 h-10 bg-slate-700 hover:bg-slate-900 text-white rounded-xl text-[14px] font-bold disabled:opacity-40 transition-colors">
-              + Add Unit
+              className="px-3 h-8 bg-slate-700 hover:bg-slate-900 text-white rounded-lg text-xs font-bold disabled:opacity-40 transition-colors">
+              Add Unit
             </button>
           </div>
         </div>
@@ -157,17 +157,17 @@ function SectionCard({ icon: Icon, title, action, children }: {
   icon: React.ElementType; title: string; action?: React.ReactNode; children: React.ReactNode;
 }) {
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-      <div className="flex items-center justify-between gap-3 px-6 py-4 border-b border-slate-100 bg-slate-50/60">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[#1F5C45]/10 flex items-center justify-center flex-shrink-0">
-            <Icon size={18} className="text-[#1F5C45]" />
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-slate-100 bg-slate-50/60">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-[#1F5C45]/10 flex items-center justify-center flex-shrink-0">
+            <Icon size={16} className="text-[#1F5C45]" />
           </div>
-          <h2 className="text-[20px] font-display font-bold text-slate-900">{title}</h2>
+          <h2 className="text-base font-display font-bold text-slate-900">{title}</h2>
         </div>
         {action}
       </div>
-      <div className="p-6">{children}</div>
+      <div className="p-4">{children}</div>
     </div>
   );
 }
@@ -286,12 +286,12 @@ export function SettingsPage() {
   const [editingSrcVal,setEditingSrcVal]= useState('');
 
   return (
-    <div className="px-6 lg:px-8 py-6 space-y-6 max-w-3xl">
+    <div className="px-4 lg:px-6 py-4 space-y-4 max-w-3xl">
 
       {/* Page header */}
       <div>
-        <h1 className="text-[30px] font-display font-bold text-slate-900 leading-tight">Settings</h1>
-        <p className="text-[19px] text-slate-600 font-medium mt-1">
+        <h1 className="text-2xl font-display font-bold text-slate-900 leading-tight">Settings</h1>
+        <p className="text-sm text-slate-600 font-medium mt-1">
           Manage stages, team members, sequences and venue details
         </p>
       </div>
@@ -304,29 +304,29 @@ export function SettingsPage() {
           <Button
             size="sm"
             onClick={() => { setStageName(''); setStageColor('#64748b'); setAddStageOpen(true); }}
-            className="bg-[#1F5C45] hover:bg-[#143d2e] text-white h-9 px-4 rounded-xl font-semibold gap-1.5 text-[20px]"
+            className="bg-[#1F5C45] hover:bg-[#143d2e] text-white h-8 px-3 rounded-lg font-semibold gap-1.5 text-sm"
           >
             <Plus size={14} /> Add Stage
           </Button>
         }
       >
-        <div className="space-y-2.5">
+        <div className="space-y-1.5">
           {(stages || []).map((s: any) => (
             <div key={s.id}
-              className="flex items-center gap-4 px-4 py-3.5 bg-slate-50 rounded-xl border border-slate-100 hover:border-slate-200 group transition-colors"
+              className="flex items-center gap-3 px-3 py-2 bg-slate-50 rounded-lg border border-slate-100 hover:border-slate-200 group transition-colors"
             >
               <GripVertical size={16} className="text-slate-300 flex-shrink-0 cursor-grab" />
-              <span className="w-4 h-4 rounded-full flex-shrink-0 shadow-sm ring-2 ring-white" style={{ backgroundColor: s.color }} />
-              <span className="text-[20px] font-semibold text-slate-900 flex-1">{s.name}</span>
-              <span className="text-[20px] font-semibold text-slate-500">{s.leadCount ?? 0} leads</span>
-              {s.isWon  && <span className="text-[19px] font-bold px-2.5 py-1 rounded-lg bg-green-50 text-green-700 border border-green-200">Won ✓</span>}
-              {s.isLost && <span className="text-[19px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 border border-slate-200">Lost</span>}
+              <span className="w-3.5 h-3.5 rounded-full flex-shrink-0 shadow-sm ring-2 ring-white" style={{ backgroundColor: s.color }} />
+              <span className="text-sm font-semibold text-slate-900 flex-1">{s.name}</span>
+              <span className="text-sm font-semibold text-slate-500">{s.leadCount ?? 0} leads</span>
+              {s.isWon  && <span className="text-xs font-bold px-2 py-0.5 rounded-lg bg-green-50 text-green-700 border border-green-200">Won ✓</span>}
+              {s.isLost && <span className="text-xs font-bold px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600 border border-slate-200">Lost</span>}
 
               {/* Edit + Delete */}
               <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
                   onClick={() => { setEditStage(s); setStageName(s.name); setStageColor(s.color); }}
-                  className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-all"
+                  className="p-1 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-all"
                   title="Edit stage"
                 >
                   <Pencil size={14} />
@@ -334,7 +334,7 @@ export function SettingsPage() {
                 {!s.isWon && !s.isLost && !s.isDefault && (
                   <button
                     onClick={() => setDeleteStageTarget(s)}
-                    className="p-1.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 transition-all"
+                    className="p-1 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 transition-all"
                     title="Remove stage"
                   >
                     <Trash2 size={14} />
@@ -344,7 +344,7 @@ export function SettingsPage() {
             </div>
           ))}
         </div>
-        <p className="text-[19px] text-slate-500 font-medium mt-4 pl-1">
+        <p className="text-xs text-slate-500 font-medium mt-3 pl-1">
           💡 Drag-to-reorder is available on the Pipeline Kanban board. Hover a row to edit or remove it.
         </p>
       </SectionCard>
@@ -357,35 +357,35 @@ export function SettingsPage() {
           <Button
             size="sm"
             onClick={() => { setUserName(''); setUserEmail(''); setUserPhone(''); setUserRole('AGENT'); setUserPass(''); setAddUserOpen(true); }}
-            className="bg-[#1F5C45] hover:bg-[#143d2e] text-white h-9 px-4 rounded-xl font-semibold gap-1.5 text-[20px]"
+            className="bg-[#1F5C45] hover:bg-[#143d2e] text-white h-8 px-3 rounded-lg font-semibold gap-1.5 text-sm"
           >
-            <Plus size={14} /> Add Member
+            <Plus size={14} /> Add
           </Button>
         }
       >
-        <div className="space-y-2.5">
+        <div className="space-y-1.5">
           {(users || []).map((u: any) => (
             <div key={u.id}
-              className="flex items-center gap-4 px-4 py-3.5 bg-slate-50 rounded-xl border border-slate-100 hover:border-slate-200 group transition-colors"
+              className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-lg border border-slate-100 hover:border-slate-200 group transition-colors"
             >
-              <div className="w-11 h-11 rounded-full bg-[#1F5C45] text-white flex items-center justify-center text-[20px] font-bold flex-shrink-0">
+              <div className="w-8 h-8 rounded-full bg-[#1F5C45] text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
                 {u.name?.charAt(0)?.toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[20px] font-bold text-slate-900 leading-snug">{u.name}</p>
-                <p className="text-[20px] font-medium text-slate-500 truncate">{u.email}</p>
+                <p className="text-sm font-semibold text-slate-900 leading-snug">{u.name}</p>
+                <p className="text-xs font-medium text-slate-500 truncate">{u.email}</p>
               </div>
-              <span className={cn('text-[19px] font-bold px-3 py-1 rounded-lg capitalize', roleColors[u.role] || roleColors.AGENT)}>
+              <span className={cn('text-xs font-bold px-2 py-0.5 rounded capitalize', roleColors[u.role] || roleColors.AGENT)}>
                 {u.role.toLowerCase()}
               </span>
               {u.isActive
-                ? <CheckCircle2 size={20} className="text-green-500 flex-shrink-0" />
-                : <XCircle     size={20} className="text-slate-300 flex-shrink-0" />
+                ? <CheckCircle2 size={16} className="text-green-500 flex-shrink-0" />
+                : <XCircle     size={16} className="text-slate-300 flex-shrink-0" />
               }
               <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
                   onClick={() => setEditUser(u)}
-                  className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-all"
+                  className="p-1 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-all"
                   title="Edit role"
                 >
                   <Pencil size={14} />
@@ -393,7 +393,7 @@ export function SettingsPage() {
                 {u.isActive && (
                   <button
                     onClick={() => { if (confirm(`Deactivate ${u.name}?`)) deactivateUser.mutate(u.id); }}
-                    className="p-1.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 transition-all"
+                    className="p-1 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 transition-all"
                     title="Deactivate"
                   >
                     <XCircle size={14} />
@@ -407,36 +407,34 @@ export function SettingsPage() {
 
       {/* ══ FOLLOW-UP SEQUENCES ══════════════════════════════════════════════ */}
       <SectionCard icon={Repeat2} title="Follow-up Sequences">
-        <div className="space-y-3">
+        <div className="space-y-2">
           {(sequences || []).map((seq: any) => (
-            <div key={seq.id} className="px-4 py-4 bg-slate-50 rounded-xl border border-slate-100">
-              <div className="flex items-center justify-between gap-3 mb-2">
-                <p className="text-[20px] font-bold text-slate-900">{seq.name}</p>
+            <div key={seq.id} className="px-3 py-2 bg-slate-50 rounded-lg border border-slate-100">
+              <div className="flex items-center justify-between gap-2 mb-1">
+                <p className="text-sm font-bold text-slate-900">{seq.name}</p>
                 <span className={cn(
-                  'text-[19px] font-bold px-3 py-1 rounded-lg',
+                  'text-xs font-bold px-2 py-0.5 rounded',
                   seq.isActive ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-slate-100 text-slate-500 border border-slate-200',
                 )}>
                   {seq.isActive ? '● Active' : '○ Inactive'}
                 </span>
               </div>
-              <p className="text-[20px] font-medium text-slate-600">
-                {seq.steps?.length ?? 0} steps
-                {seq.stopOnReply ? ' · stops automatically when lead replies' : ''}
+              <p className="text-xs font-medium text-slate-600">
+                {seq.steps?.length ?? 0} steps{seq.stopOnReply ? ' · stops on reply' : ''}
               </p>
-              <div className="flex gap-2 mt-2.5 flex-wrap">
+              <div className="flex gap-1.5 mt-1.5 flex-wrap">
                 {(seq.steps || []).map((step: any, i: number) => (
                   <span key={step.id}
-                    className="text-[19px] font-semibold bg-white border border-slate-200 px-2.5 py-1 rounded-lg text-slate-700"
+                    className="text-xs font-semibold bg-white border border-slate-200 px-2 py-0.5 rounded text-slate-700"
                   >
-                    Step {i+1} · {step.delayMinutes === 0 ? 'Immediately' : step.delayMinutes < 1440 ? `After ${step.delayMinutes/60}h` : `Day ${Math.round(step.delayMinutes/1440)}`}
-                    {step.condition?.ifNoReply ? ' (if no reply)' : ''}
+                    {i+1} · {step.delayMinutes === 0 ? 'Now' : step.delayMinutes < 1440 ? `${step.delayMinutes/60}h` : `Day ${Math.round(step.delayMinutes/1440)}`}
                   </span>
                 ))}
               </div>
             </div>
           ))}
           {(!sequences || sequences.length === 0) && (
-            <p className="text-[19px] text-slate-500 font-medium py-4 text-center">No sequences configured yet.</p>
+            <p className="text-xs text-slate-500 font-medium py-3 text-center">No sequences yet.</p>
           )}
         </div>
       </SectionCard>
@@ -449,13 +447,13 @@ export function SettingsPage() {
           action={
             <Button size="sm" variant="outline"
               onClick={() => { setVenueName(settings.venueName || ''); setEditVenueOpen(true); }}
-              className="h-9 px-4 rounded-xl font-semibold text-[20px] gap-1.5"
+              className="h-8 px-3 rounded-lg font-semibold text-sm gap-1"
             >
               <Pencil size={13} /> Edit
             </Button>
           }
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {([
               ['Venue Name',     settings.venueName],
               ['Timezone',       settings.timezone],
@@ -464,9 +462,9 @@ export function SettingsPage() {
               ['Hot score ≥',    settings.scoreThresholds?.hot ?? 80],
               ['Warm score ≥',   settings.scoreThresholds?.warm ?? 50],
             ] as [string, string | number][]).map(([label, value]) => (
-              <div key={label as string} className="px-4 py-3.5 bg-slate-50 rounded-xl border border-slate-100">
-                <p className="text-[19px] font-bold uppercase tracking-widest text-slate-500 mb-1">{label}</p>
-                <p className="text-[19px] font-bold text-slate-900">{String(value)}</p>
+              <div key={label as string} className="px-3 py-2 bg-slate-50 rounded-lg border border-slate-100">
+                <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-0.5">{label}</p>
+                <p className="text-sm font-bold text-slate-900">{String(value)}</p>
               </div>
             ))}
           </div>
@@ -475,31 +473,30 @@ export function SettingsPage() {
 
       {/* ══ CONTENT MANAGEMENT SYSTEM ══════════════════════════════════════ */}
       <SectionCard icon={LayoutList} title="Content Management">
-        <p className="text-[15px] text-slate-500 font-medium mb-6">
-          Manage every dropdown in the system — add, rename or remove custom options.
-          Fixed options (🔒) are system defaults and cannot be removed.
+        <p className="text-xs text-slate-500 font-medium mb-3">
+          Manage dropdowns — add, rename or remove options. Fixed options (🔒) are system defaults.
         </p>
 
         {/* ─ Event Types ─ */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-[17px] font-bold text-slate-800">Event Types</h3>
-            <span className="text-[13px] text-slate-400 font-medium">Used in: New Lead, Lead Detail, Filters</span>
+        <div className="mb-5">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-bold text-slate-800">Event Types</h3>
+            <span className="text-xs text-slate-400 font-medium">New Lead, Lead Detail, Filters</span>
           </div>
 
-          <div className="space-y-2 mb-3">
+          <div className="space-y-1 mb-2">
             {/* Fixed base options */}
             {BASE_EVENT_TYPES.map(et => (
-              <div key={et.value} className="flex items-center gap-3 px-4 py-3 bg-slate-50 rounded-xl border border-slate-100">
-                <Lock size={14} className="text-slate-300 flex-shrink-0" />
-                <span className="text-[16px] font-semibold text-slate-700 flex-1">{et.label}</span>
-                <span className="text-[12px] text-slate-400 font-medium bg-slate-100 px-2 py-0.5 rounded-lg">System default</span>
+              <div key={et.value} className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-100">
+                <Lock size={12} className="text-slate-300 flex-shrink-0" />
+                <span className="text-xs font-semibold text-slate-700 flex-1">{et.label}</span>
+                <span className="text-xs text-slate-400 font-medium bg-slate-100 px-1.5 py-0.5 rounded">Default</span>
               </div>
             ))}
 
             {/* Custom options */}
             {cms.customEventTypes.map((label: string) => (
-              <div key={label} className="flex items-center gap-3 px-4 py-3 bg-white rounded-xl border border-[#1F5C45]/30 group">
+              <div key={label} className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-lg border border-[#1F5C45]/30 group">
                 {editingET === label ? (
                   <>
                     <input
@@ -510,29 +507,29 @@ export function SettingsPage() {
                         if (e.key === 'Escape') setEditingET(null);
                       }}
                       autoFocus
-                      className="flex-1 h-9 rounded-lg border border-[#1F5C45] px-3 text-[16px] font-semibold focus:outline-none focus:ring-2 focus:ring-[#1F5C45]"
+                      className="flex-1 h-7 rounded-lg border border-[#1F5C45] px-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#1F5C45]"
                     />
                     <button onClick={() => { cms.renameEventType(label, editingETVal); setEditingET(null); }}
-                      className="p-1.5 rounded-lg bg-[#1F5C45] text-white hover:bg-[#143d2e]">
-                      <Check size={14} />
+                      className="p-1 rounded-lg bg-[#1F5C45] text-white hover:bg-[#143d2e]">
+                      <Check size={12} />
                     </button>
                     <button onClick={() => setEditingET(null)}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100">
-                      <XCircle size={14} />
+                      className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100">
+                      <XCircle size={12} />
                     </button>
                   </>
                 ) : (
                   <>
-                    <span className="text-[16px] font-semibold text-[#1F5C45] flex-1">{label}</span>
-                    <span className="text-[12px] text-[#1F5C45] font-medium bg-[#1F5C45]/10 px-2 py-0.5 rounded-lg">Custom</span>
+                    <span className="text-xs font-semibold text-[#1F5C45] flex-1">{label}</span>
+                    <span className="text-xs text-[#1F5C45] font-medium bg-[#1F5C45]/10 px-1.5 py-0.5 rounded">Custom</span>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button onClick={() => { setEditingET(label); setEditingETVal(label); }}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50">
-                        <Pencil size={14} />
+                        className="p-1 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50">
+                        <Pencil size={12} />
                       </button>
                       <button onClick={() => cms.removeEventType(label)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50">
-                        <Trash2 size={14} />
+                        className="p-1 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50">
+                        <Trash2 size={12} />
                       </button>
                     </div>
                   </>
@@ -547,39 +544,39 @@ export function SettingsPage() {
               value={newEventType}
               onChange={e => setNewEventType(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter' && newEventType.trim()) { cms.addEventType(newEventType); setNewEventType(''); } }}
-              placeholder="e.g. Haldi Ceremony, Mehendi, Pool Party…"
-              className="flex-1 h-11 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 text-[16px] font-medium focus:outline-none focus:ring-2 focus:ring-[#1F5C45] focus:border-transparent focus:bg-white transition-all placeholder:text-slate-400 placeholder:font-normal"
+              placeholder="e.g. Haldi, Mehendi, Pool Party…"
+              className="flex-1 h-8 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#1F5C45] focus:border-transparent focus:bg-white transition-all placeholder:text-slate-400 placeholder:font-normal"
             />
             <button
               onClick={() => { if (newEventType.trim()) { cms.addEventType(newEventType); setNewEventType(''); } }}
               disabled={!newEventType.trim() || cms.saving}
-              className="flex items-center gap-2 px-4 h-11 bg-[#1F5C45] hover:bg-[#143d2e] text-white rounded-xl font-semibold text-[15px] disabled:opacity-40 transition-colors"
+              className="flex items-center gap-1 px-3 h-8 bg-[#1F5C45] hover:bg-[#143d2e] text-white rounded-lg font-semibold text-xs disabled:opacity-40 transition-colors"
             >
-              <Plus size={16} /> Add
+              <Plus size={14} /> Add
             </button>
           </div>
         </div>
 
         {/* ─ Lead Sources ─ */}
         <div>
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-[17px] font-bold text-slate-800">Lead Sources</h3>
-            <span className="text-[13px] text-slate-400 font-medium">Used in: New Lead, Filters, Analytics</span>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-bold text-slate-800">Lead Sources</h3>
+            <span className="text-xs text-slate-400 font-medium">New Lead, Filters, Analytics</span>
           </div>
 
-          <div className="space-y-2 mb-3">
+          <div className="space-y-1 mb-2">
             {/* Fixed base sources */}
             {BASE_SOURCES.map(src => (
-              <div key={src.value} className="flex items-center gap-3 px-4 py-3 bg-slate-50 rounded-xl border border-slate-100">
-                <Lock size={14} className="text-slate-300 flex-shrink-0" />
-                <span className="text-[16px] font-semibold text-slate-700 flex-1">{src.label}</span>
-                <span className="text-[12px] text-slate-400 font-medium bg-slate-100 px-2 py-0.5 rounded-lg">System default</span>
+              <div key={src.value} className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-100">
+                <Lock size={12} className="text-slate-300 flex-shrink-0" />
+                <span className="text-xs font-semibold text-slate-700 flex-1">{src.label}</span>
+                <span className="text-xs text-slate-400 font-medium bg-slate-100 px-1.5 py-0.5 rounded">Default</span>
               </div>
             ))}
 
             {/* Custom sources */}
             {cms.customSources.map((label: string) => (
-              <div key={label} className="flex items-center gap-3 px-4 py-3 bg-white rounded-xl border border-[#C9A24B]/40 group">
+              <div key={label} className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-lg border border-[#C9A24B]/40 group">
                 {editingSrc === label ? (
                   <>
                     <input
@@ -590,29 +587,29 @@ export function SettingsPage() {
                         if (e.key === 'Escape') setEditingSrc(null);
                       }}
                       autoFocus
-                      className="flex-1 h-9 rounded-lg border border-[#C9A24B] px-3 text-[16px] font-semibold focus:outline-none focus:ring-2 focus:ring-[#C9A24B]"
+                      className="flex-1 h-7 rounded-lg border border-[#C9A24B] px-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#C9A24B]"
                     />
                     <button onClick={() => { cms.renameSource(label, editingSrcVal); setEditingSrc(null); }}
-                      className="p-1.5 rounded-lg bg-[#C9A24B] text-white hover:bg-[#a07d2e]">
-                      <Check size={14} />
+                      className="p-1 rounded-lg bg-[#C9A24B] text-white hover:bg-[#a07d2e]">
+                      <Check size={12} />
                     </button>
                     <button onClick={() => setEditingSrc(null)}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100">
-                      <XCircle size={14} />
+                      className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100">
+                      <XCircle size={12} />
                     </button>
                   </>
                 ) : (
                   <>
-                    <span className="text-[16px] font-semibold text-[#a07d2e] flex-1">{label}</span>
-                    <span className="text-[12px] text-[#a07d2e] font-medium bg-[#C9A24B]/10 px-2 py-0.5 rounded-lg">Custom</span>
+                    <span className="text-xs font-semibold text-[#a07d2e] flex-1">{label}</span>
+                    <span className="text-xs text-[#a07d2e] font-medium bg-[#C9A24B]/10 px-1.5 py-0.5 rounded">Custom</span>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button onClick={() => { setEditingSrc(label); setEditingSrcVal(label); }}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50">
-                        <Pencil size={14} />
+                        className="p-1 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50">
+                        <Pencil size={12} />
                       </button>
                       <button onClick={() => cms.removeSource(label)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50">
-                        <Trash2 size={14} />
+                        className="p-1 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50">
+                        <Trash2 size={12} />
                       </button>
                     </div>
                   </>
@@ -627,15 +624,15 @@ export function SettingsPage() {
               value={newSource}
               onChange={e => setNewSource(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter' && newSource.trim()) { cms.addSource(newSource); setNewSource(''); } }}
-              placeholder="e.g. Instagram, Facebook, Walk-in, Newspaper Ad…"
-              className="flex-1 h-11 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 text-[16px] font-medium focus:outline-none focus:ring-2 focus:ring-[#C9A24B] focus:border-transparent focus:bg-white transition-all placeholder:text-slate-400 placeholder:font-normal"
+              placeholder="e.g. Instagram, Facebook, Walk-in…"
+              className="flex-1 h-8 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#C9A24B] focus:border-transparent focus:bg-white transition-all placeholder:text-slate-400 placeholder:font-normal"
             />
             <button
               onClick={() => { if (newSource.trim()) { cms.addSource(newSource); setNewSource(''); } }}
               disabled={!newSource.trim() || cms.saving}
-              className="flex items-center gap-2 px-4 h-11 bg-[#C9A24B] hover:bg-[#a07d2e] text-white rounded-xl font-semibold text-[15px] disabled:opacity-40 transition-colors"
+              className="flex items-center gap-1 px-3 h-8 bg-[#C9A24B] hover:bg-[#a07d2e] text-white rounded-lg font-semibold text-xs disabled:opacity-40 transition-colors"
             >
-              <Plus size={16} /> Add
+              <Plus size={14} /> Add
             </button>
           </div>
         </div>
@@ -650,21 +647,21 @@ export function SettingsPage() {
       <Dialog open={addStageOpen || !!editStage} onOpenChange={open => { if (!open) { setAddStageOpen(false); setEditStage(null); } }}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>{editStage ? 'Edit Stage' : 'Add New Stage'}</DialogTitle>
+            <DialogTitle className="text-base">{editStage ? 'Edit Stage' : 'Add New Stage'}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 mt-2">
+          <div className="space-y-3 mt-2">
             <div>
-              <label className="block text-[20px] font-semibold text-slate-700 mb-1.5">Stage Name *</label>
+              <label className="block text-sm font-semibold text-slate-700 mb-1">Stage Name *</label>
               <Input
                 value={stageName}
                 onChange={e => setStageName(e.target.value)}
                 placeholder="e.g. Pre-Booking"
-                className="h-10 rounded-xl text-[19px] font-medium"
+                className="h-8 rounded-lg text-sm font-medium"
                 autoFocus
               />
             </div>
             <div>
-              <label className="block text-[20px] font-semibold text-slate-700 mb-2">Colour</label>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Colour</label>
               <div className="flex gap-2 flex-wrap">
                 {STAGE_COLORS.map(c => (
                   <button
@@ -672,7 +669,7 @@ export function SettingsPage() {
                     type="button"
                     onClick={() => setStageColor(c)}
                     className={cn(
-                      'w-8 h-8 rounded-lg transition-all',
+                      'w-7 h-7 rounded-lg transition-all',
                       stageColor === c ? 'ring-2 ring-offset-2 ring-slate-700 scale-110' : 'hover:scale-105',
                     )}
                     style={{ backgroundColor: c }}
@@ -681,13 +678,13 @@ export function SettingsPage() {
               </div>
             </div>
             <div className="flex gap-2 pt-1">
-              <Button variant="outline" onClick={() => { setAddStageOpen(false); setEditStage(null); }} className="flex-1 h-10 rounded-xl font-semibold">Cancel</Button>
+              <Button variant="outline" onClick={() => { setAddStageOpen(false); setEditStage(null); }} className="flex-1 h-8 rounded-lg font-semibold text-sm">Cancel</Button>
               <Button
-                className="flex-1 h-10 rounded-xl font-semibold bg-[#1F5C45] hover:bg-[#143d2e] text-white"
+                className="flex-1 h-8 rounded-lg font-semibold bg-[#1F5C45] hover:bg-[#143d2e] text-white text-sm"
                 disabled={!stageName.trim() || createStage.isPending || updateStage.isPending}
                 onClick={() => editStage ? updateStage.mutate() : createStage.mutate()}
               >
-                {editStage ? 'Save Changes' : 'Add Stage'}
+                {editStage ? 'Save' : 'Add'}
               </Button>
             </div>
           </div>
@@ -716,9 +713,9 @@ export function SettingsPage() {
       <Dialog open={addUserOpen} onOpenChange={open => !open && setAddUserOpen(false)}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Add Team Member</DialogTitle>
+            <DialogTitle className="text-base">Add Team Member</DialogTitle>
           </DialogHeader>
-          <div className="space-y-3 mt-2">
+          <div className="space-y-2.5 mt-2">
             {[
               { label: 'Full Name *',   value: userName,  set: setUserName,  type: 'text',     placeholder: 'Ravi Kumar' },
               { label: 'Email *',       value: userEmail, set: setUserEmail, type: 'email',    placeholder: 'ravi@nahatalawns.com' },
@@ -726,20 +723,20 @@ export function SettingsPage() {
               { label: 'Password *',   value: userPass,  set: setUserPass,  type: 'password', placeholder: 'Min 8 characters' },
             ].map(f => (
               <div key={f.label}>
-                <label className="block text-[20px] font-semibold text-slate-700 mb-1">{f.label}</label>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">{f.label}</label>
                 <Input
                   type={f.type}
                   value={f.value}
                   onChange={e => f.set(e.target.value)}
                   placeholder={f.placeholder}
-                  className="h-10 rounded-xl text-[19px] font-medium"
+                  className="h-8 rounded-lg text-sm font-medium"
                 />
               </div>
             ))}
             <div>
-              <label className="block text-[20px] font-semibold text-slate-700 mb-1">Role *</label>
+              <label className="block text-sm font-semibold text-slate-700 mb-1">Role *</label>
               <Select value={userRole} onValueChange={setUserRole}>
-                <SelectTrigger className="h-10 rounded-xl font-semibold text-[20px]"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-8 rounded-lg font-semibold text-sm"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="AGENT">Agent — works leads</SelectItem>
                   <SelectItem value="MANAGER">Manager — full access except users</SelectItem>
@@ -748,13 +745,13 @@ export function SettingsPage() {
               </Select>
             </div>
             <div className="flex gap-2 pt-1">
-              <Button variant="outline" onClick={() => setAddUserOpen(false)} className="flex-1 h-10 rounded-xl font-semibold">Cancel</Button>
+              <Button variant="outline" onClick={() => setAddUserOpen(false)} className="flex-1 h-8 rounded-lg font-semibold text-sm">Cancel</Button>
               <Button
-                className="flex-1 h-10 rounded-xl font-semibold bg-[#1F5C45] hover:bg-[#143d2e] text-white"
+                className="flex-1 h-8 rounded-lg font-semibold bg-[#1F5C45] hover:bg-[#143d2e] text-white text-sm"
                 disabled={!userName || !userEmail || !userPass || createUser.isPending}
                 onClick={() => createUser.mutate()}
               >
-                {createUser.isPending ? 'Adding…' : 'Add Member'}
+                {createUser.isPending ? 'Adding…' : 'Add'}
               </Button>
             </div>
           </div>
@@ -765,11 +762,11 @@ export function SettingsPage() {
       <Dialog open={!!editUser} onOpenChange={open => !open && setEditUser(null)}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Edit Role — {editUser?.name}</DialogTitle>
+            <DialogTitle className="text-base">Edit Role — {editUser?.name}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-3 mt-2">
+          <div className="space-y-2.5 mt-2">
             <Select defaultValue={editUser?.role} onValueChange={r => setEditUser((u: any) => ({ ...u, role: r }))}>
-              <SelectTrigger className="h-10 rounded-xl font-semibold text-[20px]"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="h-8 rounded-lg font-semibold text-sm"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="AGENT">Agent</SelectItem>
                 <SelectItem value="MANAGER">Manager</SelectItem>
@@ -777,13 +774,13 @@ export function SettingsPage() {
               </SelectContent>
             </Select>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setEditUser(null)} className="flex-1 h-10 rounded-xl font-semibold">Cancel</Button>
+              <Button variant="outline" onClick={() => setEditUser(null)} className="flex-1 h-8 rounded-lg font-semibold text-sm">Cancel</Button>
               <Button
-                className="flex-1 h-10 rounded-xl font-semibold bg-[#1F5C45] hover:bg-[#143d2e] text-white"
+                className="flex-1 h-8 rounded-lg font-semibold bg-[#1F5C45] hover:bg-[#143d2e] text-white text-sm"
                 onClick={() => updateUserRole.mutate({ id: editUser.id, role: editUser.role })}
                 disabled={updateUserRole.isPending}
               >
-                Save Role
+                Save
               </Button>
             </div>
           </div>
@@ -794,20 +791,20 @@ export function SettingsPage() {
       <Dialog open={editVenueOpen} onOpenChange={open => !open && setEditVenueOpen(false)}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Edit Venue Name</DialogTitle>
+            <DialogTitle className="text-base">Edit Venue Name</DialogTitle>
           </DialogHeader>
-          <div className="space-y-3 mt-2">
+          <div className="space-y-2.5 mt-2">
             <Input
               value={venueName}
               onChange={e => setVenueName(e.target.value)}
               placeholder="Nahata Lawns"
-              className="h-10 rounded-xl text-[19px] font-medium"
+              className="h-8 rounded-lg text-sm font-medium"
               autoFocus
             />
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setEditVenueOpen(false)} className="flex-1 h-10 rounded-xl font-semibold">Cancel</Button>
+              <Button variant="outline" onClick={() => setEditVenueOpen(false)} className="flex-1 h-8 rounded-lg font-semibold text-sm">Cancel</Button>
               <Button
-                className="flex-1 h-10 rounded-xl font-semibold bg-[#1F5C45] hover:bg-[#143d2e] text-white"
+                className="flex-1 h-8 rounded-lg font-semibold bg-[#1F5C45] hover:bg-[#143d2e] text-white text-sm"
                 disabled={!venueName.trim() || updateVenue.isPending}
                 onClick={() => updateVenue.mutate()}
               >

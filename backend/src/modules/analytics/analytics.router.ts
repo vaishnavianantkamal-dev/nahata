@@ -1,38 +1,44 @@
-import { Router, Request, Response, NextFunction } from 'express';
+import express from 'express';
 import { requireAuth } from '../../middleware/auth';
 import * as svc from './analytics.service';
 
-const router = Router();
+const router = express.Router();
 router.use(requireAuth);
 
-router.get('/kpis', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/kpis', async (req, res, next) => {
   try {
-    const { range, from, to } = req.query as any;
-    res.json(await svc.getKpis(range, from, to));
-  } catch (e) { next(e); }
+    res.json(await svc.getKpis());
+  } catch (err) { next(err); }
 });
 
-router.get('/enquiries-by-week', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/enquiries-by-week', async (req, res, next) => {
   try {
-    const { range, from, to } = req.query as any;
-    res.json(await svc.getEnquiriesByWeek(range, from, to));
-  } catch (e) { next(e); }
+    res.json(await svc.getEnquiriesByWeek());
+  } catch (err) { next(err); }
 });
 
-router.get('/leads-by-source', async (_req, res, next) => {
-  try { res.json(await svc.getLeadsBySource()); } catch (e) { next(e); }
+router.get('/leads-by-source', async (req, res, next) => {
+  try {
+    res.json(await svc.getLeadsBySource());
+  } catch (err) { next(err); }
 });
 
-router.get('/conversion-funnel', async (_req, res, next) => {
-  try { res.json(await svc.getConversionFunnel()); } catch (e) { next(e); }
+router.get('/conversion-funnel', async (req, res, next) => {
+  try {
+    res.json(await svc.getConversionFunnel());
+  } catch (err) { next(err); }
 });
 
-router.get('/response-time', async (_req, res, next) => {
-  try { res.json(await svc.getResponseTime()); } catch (e) { next(e); }
+router.get('/response-time', async (req, res, next) => {
+  try {
+    res.json(await svc.getResponseTime());
+  } catch (err) { next(err); }
 });
 
-router.get('/best-source', async (_req, res, next) => {
-  try { res.json(await svc.getBestSource()); } catch (e) { next(e); }
+router.get('/best-source', async (req, res, next) => {
+  try {
+    res.json(await svc.getBestSource());
+  } catch (err) { next(err); }
 });
 
 export default router;
