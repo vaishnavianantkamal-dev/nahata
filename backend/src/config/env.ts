@@ -35,6 +35,7 @@ export const env = {
   WHATSAPP_FLOW_ID: process.env.WHATSAPP_FLOW_ID,
   LEAD_FORM_MODE: (process.env.LEAD_FORM_MODE || 'link') as 'flow' | 'link',
   LEAD_FORM_URL: process.env.LEAD_FORM_URL || 'https://crm.example.com/lead',
+  WHATSAPP_STAGE_AUTOMATION_ENABLED: process.env.WHATSAPP_STAGE_AUTOMATION_ENABLED !== 'false',
 
   EXOTEL_SID: process.env.EXOTEL_SID,
   EXOTEL_API_KEY: process.env.EXOTEL_API_KEY,

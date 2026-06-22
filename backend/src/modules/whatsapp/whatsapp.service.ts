@@ -49,10 +49,10 @@ export async function handleIncomingMessages(
       // Normalize phone number (remove spaces, ensure +91 prefix for India)
       const normalizedPhone = normalizePhoneNumber(senderWaId);
 
-      // Find or create lead
+      // Find or create lead - exact match only to avoid cross-country collisions
       let lead = await queryOne(
-        'SELECT * FROM "Lead" WHERE "primaryPhone" = $1 OR "primaryPhone" LIKE $2',
-        [normalizedPhone, `%${normalizedPhone.slice(-10)}%`]
+        'SELECT * FROM "Lead" WHERE "primaryPhone" = $1',
+        [normalizedPhone]
       );
 
       const isNewLead = !lead;
@@ -271,6 +271,8 @@ export async function handleMessageStatuses(statuses: any[]) {
 // ── Send auto-reply to new leads ───────────────────────────────────────────
 async function sendAutoReply(leadId: string, contactName: string) {
   try {
+    // Auto-reply is sent immediately after customer message (always within 24h window)
+    // So no 24h check needed here - reply is always allowed
     if (env.LEAD_FORM_MODE === 'flow' && env.WHATSAPP_FLOW_ID) {
       // Send Flow
       await sendWhatsAppMessage(leadId, {
@@ -309,6 +311,7 @@ async function sendAutoReply(leadId: string, contactName: string) {
     }
   } catch (error) {
     logger.error({ error, leadId }, 'Error sending auto-reply');
+    // Log but don't throw - auto-reply failure shouldn't break message ingestion
   }
 }
 
@@ -400,6 +403,13 @@ export async function sendWhatsAppMessage(
 // ── Fire automation when lead moves to a stage ──────────────────────────────
 export async function fireStageAutomation(leadId: string, stageId: string) {
   try {
+    // Stage automation is disabled by default - only enable via env var
+    // This prevents unintended messages and protects against Meta's 24h window limit
+    if (!env.WHATSAPP_STAGE_AUTOMATION_ENABLED) {
+      logger.debug({ leadId, stageId }, 'Stage automation disabled (set WHATSAPP_STAGE_AUTOMATION_ENABLED=true to enable)');
+      return;
+    }
+
     // Get stage and lead
     const stage = await queryOne<{ name: string }>(
       'SELECT name FROM "Stage" WHERE id = $1',
@@ -424,6 +434,26 @@ export async function fireStageAutomation(leadId: string, stageId: string) {
 
     if (!template) return;
 
+    // Check 24h window: get last inbound message from customer
+    const lastInbound = await queryOne<{ receivedAt: string }>(
+      'SELECT "receivedAt" FROM "Message" WHERE "leadId" = $1 AND direction = $2 ORDER BY "receivedAt" DESC LIMIT 1',
+      [leadId, 'INBOUND']
+    );
+
+    if (lastInbound) {
+      const lastMessageTime = new Date(lastInbound.receivedAt);
+      const now = new Date();
+      const hoursSince = (now.getTime() - lastMessageTime.getTime()) / (1000 * 60 * 60);
+
+      if (hoursSince > 24) {
+        logger.warn(
+          { leadId, hoursSince: Math.round(hoursSince), stage: stage.name },
+          'Stage automation skipped: no customer message in last 24h (Meta requires HSM template outside 24h window)'
+        );
+        return;
+      }
+    }
+
     // Get lead for personalization
     const lead = await queryOne<{ name: string }>(
       'SELECT name FROM "Lead" WHERE id = $1',
@@ -434,10 +464,14 @@ export async function fireStageAutomation(leadId: string, stageId: string) {
     const messageText = template.body.replace('{Name}', lead?.name || 'Lead');
 
     // Send message
-    await sendWhatsAppMessage(leadId, {
+    const success = await sendWhatsAppMessage(leadId, {
       type: 'text',
       text: { body: messageText },
     }, `stage-${stage.name}`);
+
+    if (!success) {
+      logger.warn({ leadId, stageId, stage: stage.name }, 'Stage automation message failed to send (may be outside 24h window)');
+    }
   } catch (error) {
     logger.error({ error, leadId, stageId }, 'Error firing stage automation');
   }
