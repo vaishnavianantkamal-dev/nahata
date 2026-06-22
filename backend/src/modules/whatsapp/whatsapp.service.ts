@@ -167,13 +167,13 @@ async function handleFlowCompletion(leadId: string, responseJson: string) {
     );
 
     const mapping = sourceIntegration?.fieldMapping || {
-      name_field: 'name',
-      event_type_field: 'eventType',
-      guests_field: 'guestCount',
-      budget_min_field: 'budgetMin',
-      budget_max_field: 'budgetMax',
-      event_date_field: 'eventDate',
-      location_field: 'notes',
+      name_field: 'name_field',              // Key in Flow response containing name
+      event_type_field: 'event_type_field',  // Key in Flow response containing event type
+      guests_field: 'guests_field',          // Key in Flow response containing guest count
+      budget_min_field: 'budget_min_field',  // Key in Flow response containing min budget
+      budget_max_field: 'budget_max_field',  // Key in Flow response containing max budget
+      event_date_field: 'event_date_field',  // Key in Flow response containing event date
+      location_field: 'location_field',      // Key in Flow response containing location
     };
 
     const updates: Record<string, any> = {};
