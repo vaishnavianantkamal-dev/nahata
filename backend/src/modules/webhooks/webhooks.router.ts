@@ -62,8 +62,9 @@ router.post('/', async (req: Request, res: Response) => {
     // Respond 200 immediately (async processing)
     res.status(200).json({ received: true });
 
-    // Verify HMAC signature only if secret is configured
-    if (env.META_APP_SECRET) {
+    // Verify HMAC signature (skip in mock mode for testing)
+    const isMockMode = env.WHATSAPP_PROVIDER === 'mock';
+    if (!isMockMode && env.META_APP_SECRET) {
       const signature = req.headers['x-hub-signature-256'] as string;
       const rawBody = (req as any).rawBody || '';
 
@@ -89,6 +90,8 @@ router.post('/', async (req: Request, res: Response) => {
         logger.warn({ received: signature.length, expected: expected.length }, 'Signature length mismatch');
         return;
       }
+    } else if (isMockMode) {
+      logger.debug('HMAC signature verification skipped (WHATSAPP_PROVIDER=mock)');
     }
 
     // Process webhook asynchronously (don't await)
