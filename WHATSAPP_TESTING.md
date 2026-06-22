@@ -12,6 +12,10 @@ This document provides step-by-step testing procedures for the WhatsApp automati
   - Mock provider (no credentials needed)
   - Live Meta credentials (for production testing)
 
+**📌 Signature Verification:**
+- **Development** (`WHATSAPP_PROVIDER=mock`, default): Signature verification **skipped**. All curl tests work without `X-Hub-Signature-256` header.
+- **Production** (`WHATSAPP_PROVIDER=meta`): Full HMAC-SHA256 verification **required**. Include `X-Hub-Signature-256: sha256=<hmac>` header (see Test 3).
+
 ---
 
 ## Unit Tests: Quick Local Checks
@@ -52,14 +56,16 @@ HTTP/1.1 403 Forbidden
 
 ---
 
-### Test 3: Signature Verification
+### Test 3: Signature Verification (Production Only)
 
-Create a test webhook payload with correct HMAC signature:
+**Skip this test in development mode** (`WHATSAPP_PROVIDER=mock`). Signature verification is skipped by default.
+
+**For production mode** (`WHATSAPP_PROVIDER=meta`), create a test webhook with valid HMAC signature:
 
 ```bash
 #!/bin/bash
 
-APP_SECRET="your_meta_app_secret"
+APP_SECRET="your_meta_app_secret"  # From Meta App Settings
 PAYLOAD='{"entry":[{"id":"123","changes":[]}]}'
 
 # Generate HMAC-SHA256 signature
@@ -77,6 +83,17 @@ curl -X POST http://localhost:4000/api/v1/webhooks \
 HTTP/1.1 200 OK
 {"received": true}
 ```
+
+**Invalid signature (production mode):**
+```bash
+curl -X POST http://localhost:4000/api/v1/webhooks \
+  -H "Content-Type: application/json" \
+  -H "X-Hub-Signature-256: sha256=invalid_signature" \
+  -d '{"entry":[{"id":"123","changes":[]}]}' \
+  -v
+```
+
+Expected: Webhook returns 200 OK but message is **not processed** (silent rejection for security).
 
 ---
 
