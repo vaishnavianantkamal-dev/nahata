@@ -201,14 +201,31 @@ async function handleFlowCompletion(leadId: string, responseJson: string) {
 
     // Build UPDATE query
     if (Object.keys(updates).length > 0) {
-      const setClause = Object.keys(updates)
-        .map((key, i) => `"${key}" = $${i + 1}`)
-        .join(', ');
-      const values = Object.values(updates);
+      const setClauses: string[] = [];
+      const values: any[] = [];
+      let paramIndex = 1;
+
+      for (const [key, value] of Object.entries(updates)) {
+        if (key === 'notes') {
+          // Append to notes rather than overwrite
+          setClauses.push(
+            `"notes" = CASE WHEN "notes" IS NULL OR "notes" = '' THEN $${paramIndex} ELSE "notes" || E'\\n' || $${paramIndex} END`
+          );
+        } else {
+          setClauses.push(`"${key}" = $${paramIndex}`);
+        }
+        values.push(value);
+        paramIndex++;
+      }
+
+      // Add updatedAt
+      setClauses.push(`"updatedAt" = $${paramIndex}`);
+      values.push(now);
+      paramIndex++;
 
       await query(
-        `UPDATE "Lead" SET ${setClause}, "updatedAt" = $${values.length + 1} WHERE id = $${values.length + 2}`,
-        [...values, now, leadId]
+        `UPDATE "Lead" SET ${setClauses.join(', ')} WHERE id = $${paramIndex}`,
+        [...values, leadId]
       );
 
       logger.info({ leadId, updated: Object.keys(updates) }, '📝 Lead updated from Flow');

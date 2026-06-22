@@ -276,15 +276,6 @@ async function bootstrap() {
     methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
   }));
 
-  // Body parsing
-  app.use(express.json({ limit: '10mb' }));
-  app.use(express.urlencoded({ extended: true }));
-  app.use(cookieParser());
-
-  // Rate limiting
-  app.use('/api/v1/auth', rateLimit({ windowMs: 15 * 60 * 1000, max: 20, standardHeaders: true, legacyHeaders: false }));
-  app.use('/api/v1/webhooks', rateLimit({ windowMs: 60 * 1000, max: 100 }));
-
   // Health checks
   app.get('/healthz', (_req, res) => res.json({ status: 'ok', ts: new Date() }));
   app.get('/readyz', async (_req, res) => {
@@ -297,9 +288,18 @@ async function bootstrap() {
     }
   });
 
-  // API routes (webhooks FIRST — they are public, no auth middleware)
+  // API routes (webhooks FIRST — they capture raw body BEFORE json parsing)
   const api = '/api/v1';
-  app.use(`${api}/webhooks`,           webhooksRouter);   // public, must be before auth routers
+  app.use(`${api}/webhooks`,           webhooksRouter);   // public, must be BEFORE express.json()
+
+  // Body parsing (after webhooks so raw body capture works)
+  app.use(express.json({ limit: '10mb' }));
+  app.use(express.urlencoded({ extended: true }));
+  app.use(cookieParser());
+
+  // Rate limiting
+  app.use('/api/v1/auth', rateLimit({ windowMs: 15 * 60 * 1000, max: 20, standardHeaders: true, legacyHeaders: false }));
+  app.use('/api/v1/webhooks', rateLimit({ windowMs: 60 * 1000, max: 100 }));
   app.use(`${api}/auth`,               authRouter);
   app.use(`${api}/users`,              usersRouter);
   app.use(`${api}/leads`,              leadsRouter);

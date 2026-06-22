@@ -78,8 +78,15 @@ router.post('/', async (req: Request, res: Response) => {
         .digest('hex');
 
       const expected = `sha256=${hash}`;
-      if (signature !== expected) {
-        logger.warn({ received: signature, expected }, 'Signature verification failed');
+      // Use timingSafeEqual to prevent timing attacks
+      try {
+        if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
+          logger.warn({ received: signature, expected }, 'Signature verification failed');
+          return;
+        }
+      } catch (err) {
+        // timingSafeEqual throws if buffer lengths differ
+        logger.warn({ received: signature.length, expected: expected.length }, 'Signature length mismatch');
         return;
       }
     }
