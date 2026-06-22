@@ -31,6 +31,10 @@ export const env = {
   META_WABA_TOKEN: process.env.META_WABA_TOKEN,
   META_WEBHOOK_VERIFY_TOKEN: process.env.META_WEBHOOK_VERIFY_TOKEN || 'nahata_webhook_verify_2024',
   META_APP_SECRET: process.env.META_APP_SECRET,
+  GRAPH_API_VERSION: process.env.GRAPH_API_VERSION || 'v18.0',
+  WHATSAPP_FLOW_ID: process.env.WHATSAPP_FLOW_ID,
+  LEAD_FORM_MODE: (process.env.LEAD_FORM_MODE || 'link') as 'flow' | 'link',
+  LEAD_FORM_URL: process.env.LEAD_FORM_URL || 'https://crm.example.com/lead',
 
   EXOTEL_SID: process.env.EXOTEL_SID,
   EXOTEL_API_KEY: process.env.EXOTEL_API_KEY,
