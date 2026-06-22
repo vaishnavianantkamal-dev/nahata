@@ -26,7 +26,7 @@ export async function handleIncomingMessages(
       );
       if (existing) {
         logger.debug({ messageId }, 'Message already processed, skipping');
-        return;
+        continue;  // Skip this message, process the next one in the array
       }
 
       // Extract message content based on type
@@ -151,7 +151,13 @@ export async function handleIncomingMessages(
 // ── Handle Flow completion (collect lead details from WhatsApp Flow) ────────
 async function handleFlowCompletion(leadId: string, responseJson: string) {
   try {
-    const response = JSON.parse(responseJson);
+    let response: any = {};
+    try {
+      response = JSON.parse(responseJson);
+    } catch (parseErr) {
+      logger.warn({ leadId, responseJson, error: parseErr }, 'Invalid Flow response JSON');
+      return;  // Exit gracefully, don't crash webhook
+    }
     const fields = response || {};
 
     // Map Flow fields to Lead columns via SourceIntegration config
