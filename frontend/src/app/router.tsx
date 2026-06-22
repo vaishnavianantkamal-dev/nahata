@@ -10,6 +10,9 @@ import { TemplatesPage } from '@/features/templates/TemplatesPage';
 import { ReportsPage } from '@/features/reports/ReportsPage';
 import { SettingsPage } from '@/features/settings/SettingsPage';
 import { QuotationsPage } from '@/features/quotations/QuotationsPage';
+import { BookingsPage } from '@/features/bookings/BookingsPage';
+import { PaymentsPage } from '@/features/payments/PaymentsPage';
+import { InvoicesPage } from '@/features/invoices/InvoicesPage';
 import { useAuthStore } from '@/store/auth';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -32,9 +35,12 @@ export const router = createBrowserRouter([
       { path: 'leads', element: <LeadsPage /> },
       { path: 'leads/:id', element: <LeadDetailPage /> },
       { path: 'pipeline', element: <PipelinePage /> },
+      { path: 'bookings', element: <BookingsPage /> },
       { path: 'whatsapp', element: <WhatsAppPage /> },
       { path: 'templates', element: <TemplatesPage /> },
       { path: 'quotations', element: <QuotationsPage /> },
+      { path: 'invoices', element: <InvoicesPage /> },
+      { path: 'payments', element: <PaymentsPage /> },
       { path: 'reports', element: <ReportsPage /> },
       { path: 'settings', element: <SettingsPage /> },
     ],

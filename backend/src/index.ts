@@ -101,6 +101,127 @@ async function autoSeed() {
       logger.info('✅ Default templates created');
     }
 
+    // 5. Ensure Bookings table exists (calendar / availability module)
+    await query(`
+      CREATE TABLE IF NOT EXISTS "Booking" (
+        id TEXT PRIMARY KEY,
+        "leadId" TEXT,
+        title TEXT NOT NULL,
+        "clientName" TEXT NOT NULL,
+        "clientPhone" TEXT,
+        "eventType" "EventType" NOT NULL DEFAULT 'WEDDING',
+        venue TEXT NOT NULL DEFAULT 'Main Lawn',
+        "eventDate" DATE NOT NULL,
+        "startTime" TEXT,
+        "endTime" TEXT,
+        "guestCount" INT,
+        status TEXT NOT NULL DEFAULT 'CONFIRMED',
+        amount FLOAT,
+        "advanceReceived" FLOAT NOT NULL DEFAULT 0,
+        notes TEXT,
+        color TEXT,
+        "createdById" TEXT,
+        "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "deletedAt" TIMESTAMP,
+        FOREIGN KEY ("leadId") REFERENCES "Lead"(id),
+        FOREIGN KEY ("createdById") REFERENCES "User"(id)
+      )
+    `);
+    await query('CREATE INDEX IF NOT EXISTS idx_booking_eventDate ON "Booking"("eventDate")');
+    await query('CREATE INDEX IF NOT EXISTS idx_booking_status ON "Booking"(status)');
+    await query('CREATE INDEX IF NOT EXISTS idx_booking_leadId ON "Booking"("leadId")');
+    await query('CREATE INDEX IF NOT EXISTS idx_booking_venue ON "Booking"(venue)');
+
+    // 6. Ensure Payments table exists (invoice / balance tracking module)
+    await query(`
+      CREATE TABLE IF NOT EXISTS "Payment" (
+        id TEXT PRIMARY KEY,
+        "quotationId" TEXT NOT NULL,
+        "leadId" TEXT,
+        amount FLOAT NOT NULL,
+        method TEXT NOT NULL DEFAULT 'CASH',
+        reference TEXT,
+        "paidOn" DATE NOT NULL DEFAULT CURRENT_DATE,
+        notes TEXT,
+        "createdById" TEXT,
+        "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "deletedAt" TIMESTAMP,
+        FOREIGN KEY ("quotationId") REFERENCES "Quotation"(id) ON DELETE CASCADE,
+        FOREIGN KEY ("leadId") REFERENCES "Lead"(id),
+        FOREIGN KEY ("createdById") REFERENCES "User"(id)
+      )
+    `);
+    await query('CREATE INDEX IF NOT EXISTS idx_payment_quotationId ON "Payment"("quotationId")');
+    await query('CREATE INDEX IF NOT EXISTS idx_payment_leadId ON "Payment"("leadId")');
+    await query('CREATE INDEX IF NOT EXISTS idx_payment_paidOn ON "Payment"("paidOn")');
+
+    // 7. Ensure Invoice tables exist + link payments to invoices (invoicing module)
+    await query(`
+      CREATE TABLE IF NOT EXISTS "Invoice" (
+        id TEXT PRIMARY KEY,
+        "invoiceNumber" TEXT NOT NULL UNIQUE,
+        type TEXT NOT NULL DEFAULT 'TAX_INVOICE',
+        "quotationId" TEXT,
+        "bookingId" TEXT,
+        "leadId" TEXT,
+        "clientName" TEXT NOT NULL,
+        "clientPhone" TEXT,
+        "clientGstin" TEXT,
+        "clientAddress" TEXT,
+        "projectDetails" TEXT,
+        "issueDate" DATE NOT NULL DEFAULT CURRENT_DATE,
+        "dueDate" DATE,
+        "placeOfSupply" TEXT,
+        "interState" BOOLEAN NOT NULL DEFAULT false,
+        subtotal FLOAT NOT NULL DEFAULT 0,
+        "discountAmt" FLOAT NOT NULL DEFAULT 0,
+        "taxableValue" FLOAT NOT NULL DEFAULT 0,
+        "gstPct" FLOAT NOT NULL DEFAULT 0,
+        "cgstAmt" FLOAT NOT NULL DEFAULT 0,
+        "sgstAmt" FLOAT NOT NULL DEFAULT 0,
+        "igstAmt" FLOAT NOT NULL DEFAULT 0,
+        "grandTotal" FLOAT NOT NULL DEFAULT 0,
+        "advancePct" INT NOT NULL DEFAULT 0,
+        "amountInWords" TEXT,
+        notes TEXT,
+        "termsText" TEXT,
+        status TEXT NOT NULL DEFAULT 'UNPAID',
+        "createdById" TEXT,
+        "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "deletedAt" TIMESTAMP,
+        FOREIGN KEY ("quotationId") REFERENCES "Quotation"(id),
+        FOREIGN KEY ("leadId") REFERENCES "Lead"(id),
+        FOREIGN KEY ("createdById") REFERENCES "User"(id)
+      )
+    `);
+    await query('CREATE INDEX IF NOT EXISTS idx_invoice_quotationId ON "Invoice"("quotationId")');
+    await query('CREATE INDEX IF NOT EXISTS idx_invoice_type ON "Invoice"(type)');
+    await query('CREATE INDEX IF NOT EXISTS idx_invoice_status ON "Invoice"(status)');
+    await query('CREATE INDEX IF NOT EXISTS idx_invoice_issueDate ON "Invoice"("issueDate")');
+    await query(`
+      CREATE TABLE IF NOT EXISTS "InvoiceItem" (
+        id TEXT PRIMARY KEY,
+        "invoiceId" TEXT NOT NULL,
+        "order" INT NOT NULL,
+        description TEXT NOT NULL,
+        notes TEXT,
+        hsn TEXT,
+        "areaQty" FLOAT NOT NULL DEFAULT 1,
+        unit TEXT NOT NULL DEFAULT 'Nos',
+        rate FLOAT NOT NULL DEFAULT 0,
+        amount FLOAT NOT NULL DEFAULT 0,
+        "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY ("invoiceId") REFERENCES "Invoice"(id) ON DELETE CASCADE
+      )
+    `);
+    await query('CREATE INDEX IF NOT EXISTS idx_invoiceitem_invoiceId ON "InvoiceItem"("invoiceId")');
+    await query('ALTER TABLE "Payment" ADD COLUMN IF NOT EXISTS "invoiceId" TEXT');
+    await query('ALTER TABLE "Payment" ALTER COLUMN "quotationId" DROP NOT NULL');
+    await query('CREATE INDEX IF NOT EXISTS idx_payment_invoiceId ON "Payment"("invoiceId")');
+
     logger.info('🌿 Auto-seed complete');
   } catch (err) {
     logger.error({ err }, 'Auto-seed failed (non-fatal)');
@@ -123,6 +244,9 @@ import webhooksRouter   from './modules/webhooks/webhooks.router';
 import settingsRouter   from './modules/settings/settings.router';
 import scoringRouter    from './modules/scoring/scoring.router';
 import quotationsRouter from './modules/quotations/quotations.router';
+import bookingsRouter   from './modules/bookings/bookings.router';
+import paymentsRouter   from './modules/payments/payments.router';
+import invoicesRouter   from './modules/invoices/invoices.router';
 
 async function bootstrap() {
   const app = express();
@@ -190,6 +314,9 @@ async function bootstrap() {
   app.use(`${api}/reports`,            reportsRouter);
   app.use(`${api}`,                    settingsRouter);
   app.use(`${api}`,                    quotationsRouter);
+  app.use(`${api}`,                    bookingsRouter);
+  app.use(`${api}`,                    paymentsRouter);
+  app.use(`${api}`,                    invoicesRouter);
 
   // Error handler (must be last)
   app.use(errorHandler);

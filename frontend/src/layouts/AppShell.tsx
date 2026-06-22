@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard, Users, Kanban,
+  LayoutDashboard, Users, Kanban, CalendarDays, Wallet, ReceiptText,
   BarChart2, Settings, Menu, X, Plus, Bell, LogOut, ClipboardList,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -17,7 +17,10 @@ const navGroups = [
     { to: '/pipeline',  label: 'Pipeline',      icon: Kanban },
   ]},
   { section: 'BUSINESS', items: [
+    { to: '/bookings',   label: 'Bookings',     icon: CalendarDays },
     { to: '/quotations', label: 'Quotations',   icon: ClipboardList },
+    { to: '/invoices',   label: 'Invoices',     icon: ReceiptText },
+    { to: '/payments',   label: 'Payments',     icon: Wallet },
   ]},
   { section: 'INSIGHTS', items: [
     { to: '/reports',   label: 'Reports',       icon: BarChart2 },
